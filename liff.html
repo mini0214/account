@@ -36,7 +36,7 @@
     document.getElementById("expenseForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const amount = document.getElementById("amount").value;
-      const purpose = document.getElementById("purpose").value;
+      const category = document.getElementById("category").value;
 
       // 取得使用者資訊
       const profile = await liff.getProfile();
@@ -49,7 +49,7 @@
           userId: profile.userId,
           displayName: profile.displayName,
           amount: amount,
-          purpose: purpose,
+          category: category,
           date: new Date().toISOString()
         })
       });
@@ -59,4 +59,5 @@
   </script>
 </body>
 </html>
+
 
