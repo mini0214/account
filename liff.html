@@ -11,6 +11,9 @@
   <form id="expenseForm">
     <label>金額：</label>
     <input type="number" id="amount" required><br><br>
+    
+    <label>付款方式：</label>
+    <input type="text" id="merchant" required><br><br>
 
     <label>分類：</label>
     <input type="text" id="category" required><br><br>
@@ -39,6 +42,7 @@
     document.getElementById("expenseForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const amount = document.getElementById("amount").value;
+      const merchant = document.getElementById("merchant").value;
       const category = document.getElementById("category").value;
       const note = document.getElementById("note").value;
 
@@ -53,6 +57,7 @@
           userId: profile.userId,
           displayName: profile.displayName,
           amount: amount,
+          merchant: merchant,
           category: category,
           note: note,
           date: new Date().toISOString()
@@ -64,6 +69,7 @@
   </script>
 </body>
 </html>
+
 
 
 
