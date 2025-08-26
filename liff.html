@@ -56,12 +56,12 @@
         body: JSON.stringify({
           userId: profile.userId,
           displayName: profile.displayName,
-          inputDate: date,       // ✅ ← 改成 inputDate
+          inputDate: date,         // ← 表單日期
           amount: amount,
           merchant: merchant,
           category: category,
           note: note,
-          createdAt: new Date().toISOString() // ← 系統時間另外存
+          createdAt: new Date().toISOString() // ← 系統時間
         })
       });
 
@@ -70,4 +70,5 @@
   </script>
 </body>
 </html>
+
 
