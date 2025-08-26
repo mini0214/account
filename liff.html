@@ -10,12 +10,12 @@
 
   <form id="expenseForm">
     <label>日期：</label>
-    <input type="date" id="date" required><br><br>
+    <input type="date" id="sdate" required><br><br>
     
     <label>金額：</label>
     <input type="number" id="amount" required><br><br>
     
-    <label>付款方式：</label>
+    <label>付款：</label>
     <input type="text" id="merchant" required><br><br>
 
     <label>分類：</label>
@@ -44,7 +44,7 @@
     // 表單送出
     document.getElementById("expenseForm").addEventListener("submit", async (e) => {
       e.preventDefault();
-      const date = document.getElementById("date").value;
+      const sdate = document.getElementById("sdate").value;
       const amount = document.getElementById("amount").value;
       const merchant = document.getElementById("merchant").value;
       const category = document.getElementById("category").value;
@@ -60,7 +60,7 @@
         body: JSON.stringify({
           userId: profile.userId,
           displayName: profile.displayName,
-          date: date,
+          sdate: sdate,
           amount: amount,
           merchant: merchant,
           category: category,
@@ -74,6 +74,7 @@
   </script>
 </body>
 </html>
+
 
 
 
