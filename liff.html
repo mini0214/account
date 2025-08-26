@@ -7,7 +7,7 @@
 </head>
 <body>
 
-  <h2 id="title">零用金支出登錄</h2>
+  <h2 id="title">零用金支出登錄 [v1.0]</h2>
 
   <form id="expenseForm">
     <label>日期：</label>
@@ -29,22 +29,12 @@
   </form>
 
   <script>
-    const LIFF_ID = "2007975722-rVQMPxKV";  // 換成你自己的 LIFF ID
+    const LIFF_ID = "2007975722-rVQMPxKV";  // 換成你的 LIFF ID
+    const VERSION = "v0826_1707";          // 固定版次
 
     async function main() {
       await liff.init({ liffId: LIFF_ID });
       if (!liff.isLoggedIn()) liff.login();
-
-      // 顯示版次與時間在標題
-      const now = new Date();
-      const version = "v1.0";
-      const timestamp = now.getFullYear() + "-" 
-                      + String(now.getMonth()+1).padStart(2,'0') + "-"
-                      + String(now.getDate()).padStart(2,'0') + " "
-                      + String(now.getHours()).padStart(2,'0') + ":"
-                      + String(now.getMinutes()).padStart(2,'0') + ":"
-                      + String(now.getSeconds()).padStart(2,'0');
-      document.getElementById("title").innerText = `零用金支出登錄 [${version} ${timestamp}]`;
     }
     main();
 
@@ -60,6 +50,7 @@
       const profile = await liff.getProfile();
 
       const payload = {
+        version: VERSION,            // 版次
         userId: profile.userId,
         displayName: profile.displayName,
         inputDate: date,
@@ -73,8 +64,7 @@
       // alert 顯示完整資料
       alert("即將送出資料：\n" + JSON.stringify(payload, null, 2));
 
-      // 呼叫 GAS
-      const apiUrl = "https://script.google.com/macros/s/AKfycbxFpvVc3G3FR-uxvfwCXgijhGOgDawG8JzeXfC00N8Jxf3H7xtJz1eBYd4LypPvu1QeIw/exec"; // 換成你的 GAS URL
+      const apiUrl = "https://script.google.com/macros/s/AKfycbxxsBLg06inv4VsPpk93Q6cZHuoQjyO34OrItsgs4zGkwLYlAsJXB0KR2cOm7tXHI6b6A/exec"; // 換成你的 GAS URL
       const res = await fetch(apiUrl, {
         method: "POST",
         body: JSON.stringify(payload)
@@ -86,4 +76,3 @@
   </script>
 </body>
 </html>
-
