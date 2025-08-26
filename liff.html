@@ -10,12 +10,12 @@
 
   <form id="expenseForm">
     <label>日期：</label>
-    <input type="date" id="date" required><br><br>
+    <input type="date" id="inputDate" required><br><br>
     
     <label>金額：</label>
     <input type="number" id="amount" required><br><br>
     
-    <label>付款：</label>
+    <label>付款對象：</label>
     <input type="text" id="merchant" required><br><br>
 
     <label>分類：</label>
@@ -28,7 +28,8 @@
   </form>
 
   <script>
-    const LIFF_ID = "2007975722-rVQMPxKV";  // 你的 LIFF ID
+    const LIFF_ID = "2007975722-rVQMPxKV";  // 換成你自己的 LIFF ID
+    const API_URL = "https://script.google.com/macros/s/AKfycbwrSTJEfIBUdCbd4lWBxhx31qwOh-lOgM3wayw9nfALvl24Y0njJQAK2zAk94u3KGOdog/exec"; // 換成你自己的 GAS Web App URL
 
     async function main() {
       await liff.init({ liffId: LIFF_ID });
@@ -38,11 +39,9 @@
     }
     main();
 
-    // 表單送出
     document.getElementById("expenseForm").addEventListener("submit", async (e) => {
       e.preventDefault();
-
-      const date = document.getElementById("date").value;   // ✅ 使用者輸入日期
+      const inputDate = document.getElementById("inputDate").value;
       const amount = document.getElementById("amount").value;
       const merchant = document.getElementById("merchant").value;
       const category = document.getElementById("category").value;
@@ -50,23 +49,23 @@
 
       const profile = await liff.getProfile();
 
-      const apiUrl = "https://script.google.com/macros/s/AKfycbwrSTJEfIBUdCbd4lWBxhx31qwOh-lOgM3wayw9nfALvl24Y0njJQAK2zAk94u3KGOdog/exec";
+      const payload = {
+        userId: profile.userId,
+        displayName: profile.displayName,
+        inputDate: inputDate,   // ⚠️ 固定用 inputDate 傳給 GAS
+        amount: amount,
+        merchant: merchant,
+        category: category,
+        note: note
+      };
 
-      await fetch(apiUrl, {
+      const res = await fetch(API_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },  // ✅ 一定要加
-        body: JSON.stringify({
-          userId: profile.userId,
-          displayName: profile.displayName,
-          inputDate: date,      // ✅ key = inputDate
-          amount: amount,
-          merchant: merchant,
-          category: category,
-          note: note
-        })
+        body: JSON.stringify(payload)
       });
 
-      alert("✅ 已送出！");
+      const result = await res.json();
+      alert("✅ 已送出！結果：" + JSON.stringify(result));
     });
   </script>
 </body>
