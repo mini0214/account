@@ -22,19 +22,16 @@
     <input type="text" id="category" required><br><br>
 
     <label>備註：</label>
-    <input type="text" id="note" required><br><br>
+    <input type="text" id="note"><br><br>
 
     <button type="submit">送出</button>
   </form>
 
   <script>
-    // 🔑 把這裡換成你在 LINE Developers LIFF App 拿到的 LIFF ID
-    const LIFF_ID = "2007975722-rVQMPxKV";  
+    const LIFF_ID = "2007975722-rVQMPxKV";  // 你的 LIFF ID
 
-    // 初始化 LIFF
     async function main() {
       await liff.init({ liffId: LIFF_ID });
-
       if (!liff.isLoggedIn()) {
         liff.login();
       }
@@ -44,28 +41,28 @@
     // 表單送出
     document.getElementById("expenseForm").addEventListener("submit", async (e) => {
       e.preventDefault();
-      const date = document.getElementById("date").value;
+
+      const date = document.getElementById("date").value;   // ✅ 使用者輸入日期
       const amount = document.getElementById("amount").value;
       const merchant = document.getElementById("merchant").value;
       const category = document.getElementById("category").value;
       const note = document.getElementById("note").value;
 
-      // 取得使用者資訊
       const profile = await liff.getProfile();
 
-      // 呼叫 Google Apps Script API (換成你自己的 GAS 網址)
       const apiUrl = "https://script.google.com/macros/s/AKfycbwrSTJEfIBUdCbd4lWBxhx31qwOh-lOgM3wayw9nfALvl24Y0njJQAK2zAk94u3KGOdog/exec";
+
       await fetch(apiUrl, {
         method: "POST",
+        headers: { "Content-Type": "application/json" },  // ✅ 一定要加
         body: JSON.stringify({
           userId: profile.userId,
           displayName: profile.displayName,
-          inputDate: date,
+          inputDate: date,      // ✅ key = inputDate
           amount: amount,
           merchant: merchant,
           category: category,
-          note: note,
-          date: new Date().toISOString()
+          note: note
         })
       });
 
@@ -74,11 +71,3 @@
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
