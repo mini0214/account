@@ -65,7 +65,7 @@
       };
 
       // alert 顯示完整資料
-      alert("即將送出資料：\n" + JSON.stringify(payload, null, 2));
+      //alert("即將送出資料：\n" + JSON.stringify(payload, null, 2));
 
       const apiUrl = "https://script.google.com/macros/s/AKfycbyAzhfT3KNVv4ceBpP2Ch3Z7l0mswLjGqAmpHrZYprmvc8mNUaD9k9r1ksfn1FeINks7Q/exec"; // 換成你的 GAS URL
       try {
@@ -75,7 +75,8 @@
         });
 
         const result = await res.json();
-        alert("✅ 已送出！後端回覆：" + JSON.stringify(result));
+        //alert("✅ 已送出！後端回覆：" + JSON.stringify(result));
+        alert("✅ 已送出！");
 
         // ✅ 清空表單（日期保留今天）
         document.getElementById("expenseForm").reset();
@@ -88,3 +89,4 @@
   </script>
 </body>
 </html>
+
