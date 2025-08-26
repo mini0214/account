@@ -9,6 +9,9 @@
   <h2>零用金支出登錄</h2>
 
   <form id="expenseForm">
+    <label>日期：</label>
+    <input type="date" id="date" required><br><br>
+    
     <label>金額：</label>
     <input type="number" id="amount" required><br><br>
     
@@ -41,6 +44,7 @@
     // 表單送出
     document.getElementById("expenseForm").addEventListener("submit", async (e) => {
       e.preventDefault();
+      const date = document.getElementById("date").value;
       const amount = document.getElementById("amount").value;
       const merchant = document.getElementById("merchant").value;
       const category = document.getElementById("category").value;
@@ -56,6 +60,7 @@
         body: JSON.stringify({
           userId: profile.userId,
           displayName: profile.displayName,
+          date: date,
           amount: amount,
           merchant: merchant,
           category: category,
@@ -69,6 +74,7 @@
   </script>
 </body>
 </html>
+
 
 
 
