@@ -13,6 +13,9 @@
     <label>日期：</label>
     <input type="date" id="date" required><br><br>
     
+    <label>店家：</label>
+    <input type="text" id="photo_url"><br><br>
+    
     <label>金額：</label>
     <input type="number" id="amount" required><br><br>
     
@@ -45,6 +48,7 @@
       e.preventDefault();
 
       const date = document.getElementById("date").value;
+      const photo_url = document.getElementById("photo_url").value;
       const amount = document.getElementById("amount").value;
       const merchant = document.getElementById("merchant").value;
       const category = document.getElementById("category").value;
@@ -61,6 +65,7 @@
         merchant: merchant,
         category: category,
         note: note,
+        photo_url: photo_url,
         createdAt: new Date().toISOString()
       };
 
@@ -89,6 +94,7 @@
   </script>
 </body>
 </html>
+
 
 
 
