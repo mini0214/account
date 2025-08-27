@@ -7,14 +7,14 @@
 </head>
 <body>
 
-  <h2 id="title">零用金支出登錄 [v0826_2254]</h2>
+  <h2 id="title">零用金支出登錄 [v0827_1023]</h2>
 
   <form id="expenseForm">
     <label>日期：</label>
     <input type="date" id="date" required><br><br>
     
     <label>店家：</label>
-    <input type="text" id="photo_url"><br><br>
+    <input type="text" id="photo_url"><br><br>          //非必填
     
     <label>金額：</label>
     <input type="number" id="amount" required><br><br>
@@ -26,14 +26,14 @@
     <input type="text" id="category" required><br><br>
 
     <label>備註：</label>
-    <input type="text" id="note"><br><br>
+    <input type="text" id="note"><br><br>               //非必填
 
     <button type="submit">送出</button>
   </form>
 
   <script>
     const LIFF_ID = "2007975722-rVQMPxKV";  // 換成你的 LIFF ID
-    const VERSION = "v0826_2254";            // 固定版次
+    const VERSION = "v0827_1023";            // 固定版次
 
     async function main() {
       await liff.init({ liffId: LIFF_ID });
@@ -61,11 +61,11 @@
         userId: profile.userId,
         displayName: profile.displayName,
         inputDate: date,
+        photo_url: photo_url,
         amount: amount,
         merchant: merchant,
         category: category,
         note: note,
-        photo_url: photo_url,
         createdAt: new Date().toISOString()
       };
 
@@ -94,6 +94,7 @@
   </script>
 </body>
 </html>
+
 
 
 
