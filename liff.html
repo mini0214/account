@@ -7,7 +7,7 @@
 </head>
 <body>
 
-  <h2 id="title">零用金支出登錄 [v250827B]</h2>
+  <h2 id="title">零用金支出登錄 [v250827C]</h2>
 
   <form id="expenseForm">
     <label>日期：</label>
@@ -33,7 +33,7 @@
 
   <script>
     const LIFF_ID = "2007975722-rVQMPxKV";  // 換成你的 LIFF ID
-    const VERSION = "v250827B";            // 固定版次
+    const VERSION = "v250827C";            // 固定版次
 
     async function main() {
       await liff.init({ liffId: LIFF_ID });
@@ -55,7 +55,13 @@
       const note = document.getElementById("note").value;
 
       const profile = await liff.getProfile();
-
+      
+      const now = new Date();
+      const taiwanTime = new Date(now.getTime() + (8 * 60 * 60 * 1000))  // UTC+8
+        .toISOString()
+        .replace("T", " ")
+        .split(".")[0]; // "2025-08-27 11:28:49"
+      
       const payload = {
         version: VERSION,
         userId: profile.userId,
@@ -66,7 +72,7 @@
         merchant: merchant,
         category: category,
         note: note,
-        createdAt: new Date().toISOString()
+        createdAt: taiwanTime   // ✅ 已經是台灣時間字串
       };
 
       // alert 顯示完整資料
@@ -94,6 +100,7 @@
   </script>
 </body>
 </html>
+
 
 
 
