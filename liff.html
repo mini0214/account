@@ -79,31 +79,23 @@
   <div id="queryResult" style="margin-top:15px; font-size:16px; color:blue;"></div>
 
   <script>
-    // 查詢功能（前端示範版）
-    document.getElementById("queryBtn").addEventListener("click", async () => {
-      const queryText = document.getElementById("queryInput").value;
+ // 查詢
+    async function sendQuery(){
+      const command = document.getElementById("query").value.trim();
+      if (!command) return alert("請輸入查詢指令");
 
-      if (!queryText) {
-        alert("請輸入查詢指令！");
-        return;
-      }
+      const body = {
+        type: "query",
+        command: command
+      };
 
-      // 送去後端（GAS）
-      const apiUrl = "https://script.google.com/macros/s/AKfycbxy002_dTuPjhCNIpvi-PacfOvJNMD8ytGL5LcQLe43cgRE7ao8_c_c4HLEhJge_uGv/exec"; // 換成你的 GAS URL
-      const res = await fetch(apiUrl, {
+      const res = await fetch("https://script.google.com/macros/s/AKfycbxy002_dTuPjhCNIpvi-PacfOvJNMD8ytGL5LcQLe43cgRE7ao8_c_c4HLEhJge_uGv/exec", {  // 換成你的 GAS URL
         method: "POST",
-        body: JSON.stringify({ type: "query", command: queryText })
+        body: JSON.stringify(body)
       });
-
-      const result = await res.json();
-      if (result.rows) {
-        let html = "<b>查詢結果：</b><br>";
-        result.rows.forEach(r => {
-          html += `${r[2]} | ${r[3]}元 | ${r[4]} | ${r[5]} | 備註:${r[6]}<br>`;
-        });      
-      document.getElementById("queryResult").innerText =
-        "查詢結果：" + JSON.stringify(result);
-    });
+      const json = await res.json();
+      document.getElementById("result").textContent = JSON.stringify(json, null, 2);
+    }
   </script>
 </body>
 
@@ -179,6 +171,7 @@
   </script>
 </body>
 </html>
+
 
 
 
