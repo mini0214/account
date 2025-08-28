@@ -47,7 +47,7 @@
 </head>
 <body>
 
-  <h2 id="title">零用金支出登錄 [v250828B]</h2>
+  <h2 id="title">零用金支出登錄 [<span id="version"></span>]</h2>
 
   <form id="expenseForm">
     <label>日期：</label>
@@ -110,6 +110,9 @@
   <script>
     const LIFF_ID = "2007975722-rVQMPxKV";  // 換成你的 LIFF ID
     const VERSION = "v250828B";            // 固定版次
+
+    // 將版本號插入到 <span id="version"> 中
+    document.getElementById("version").textContent = VERSION;
 
     async function main() {
       await liff.init({ liffId: LIFF_ID });
@@ -176,6 +179,7 @@
   </script>
 </body>
 </html>
+
 
 
 
