@@ -89,7 +89,7 @@
       }
 
       // 送去後端（GAS）
-      const apiUrl = "https://script.google.com/macros/s/AKfycbwTzo7AQCprzF35rPT636zcyZOiwvJ3Np-R1fcS1NXwp_4M7ocbFq35Qrq6mV_skXflrg/exec"; // 換成你的 GAS URL
+      const apiUrl = "https://script.google.com/macros/s/AKfycbzILdjBWPmqzuds92ZeN-b60_tNvkIVE4rf27O-KJXSkfqutFd7YOzB9eIr7tjwgOMjFQ/exec"; // 換成你的 GAS URL
       const res = await fetch(apiUrl, {
         method: "POST",
         body: JSON.stringify({ type: "query", command: queryText })
@@ -154,7 +154,7 @@
       // alert 顯示完整資料
       //alert("即將送出資料：\n" + JSON.stringify(payload, null, 2));
 
-      const apiUrl = "https://script.google.com/macros/s/AKfycbwTzo7AQCprzF35rPT636zcyZOiwvJ3Np-R1fcS1NXwp_4M7ocbFq35Qrq6mV_skXflrg/exec"; // 換成你的 GAS URL
+      const apiUrl = "https://script.google.com/macros/s/AKfycbzILdjBWPmqzuds92ZeN-b60_tNvkIVE4rf27O-KJXSkfqutFd7YOzB9eIr7tjwgOMjFQ/exec"; // 換成你的 GAS URL
       try {
         const res = await fetch(apiUrl, {
           method: "POST",
@@ -176,6 +176,7 @@
   </script>
 </body>
 </html>
+
 
 
 
