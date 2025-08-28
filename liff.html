@@ -47,7 +47,7 @@
 </head>
 <body>
 
-  <h2 id="title">零用金支出登錄 [v250828A]</h2>
+  <h2 id="title">零用金支出登錄 [v250828B]</h2>
 
   <form id="expenseForm">
     <label>日期：</label>
@@ -89,13 +89,18 @@
       }
 
       // 送去後端（GAS）
-      const apiUrl = "https://script.google.com/macros/s/AKfycbyrwU9HH60Vsrev45_BnGw6MH7-2AnLD4DMeHKVib4GGECDlNL_W1IMyzSfmbXQZqqAbg/exec"; // 換成你的 GAS URL
+      const apiUrl = "https://script.google.com/macros/s/AKfycbwTzo7AQCprzF35rPT636zcyZOiwvJ3Np-R1fcS1NXwp_4M7ocbFq35Qrq6mV_skXflrg/exec"; // 換成你的 GAS URL
       const res = await fetch(apiUrl, {
         method: "POST",
         body: JSON.stringify({ type: "query", command: queryText })
       });
 
       const result = await res.json();
+      if (result.rows) {
+        let html = "<b>查詢結果：</b><br>";
+        result.rows.forEach(r => {
+          html += `${r[2]} | ${r[3]}元 | ${r[4]} | ${r[5]} | 備註:${r[6]}<br>`;
+        });      
       document.getElementById("queryResult").innerText =
         "查詢結果：" + JSON.stringify(result);
     });
@@ -104,7 +109,7 @@
 
   <script>
     const LIFF_ID = "2007975722-rVQMPxKV";  // 換成你的 LIFF ID
-    const VERSION = "v250828A";            // 固定版次
+    const VERSION = "v250828B";            // 固定版次
 
     async function main() {
       await liff.init({ liffId: LIFF_ID });
@@ -149,7 +154,7 @@
       // alert 顯示完整資料
       //alert("即將送出資料：\n" + JSON.stringify(payload, null, 2));
 
-      const apiUrl = "https://script.google.com/macros/s/AKfycbyrwU9HH60Vsrev45_BnGw6MH7-2AnLD4DMeHKVib4GGECDlNL_W1IMyzSfmbXQZqqAbg/exec"; // 換成你的 GAS URL
+      const apiUrl = "https://script.google.com/macros/s/AKfycbwTzo7AQCprzF35rPT636zcyZOiwvJ3Np-R1fcS1NXwp_4M7ocbFq35Qrq6mV_skXflrg/exec"; // 換成你的 GAS URL
       try {
         const res = await fetch(apiUrl, {
           method: "POST",
@@ -171,6 +176,7 @@
   </script>
 </body>
 </html>
+
 
 
 
