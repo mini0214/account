@@ -71,7 +71,7 @@
 </head>
 <body>
 
-  <h2 id="title">零用金支出[登錄] [<span id="version"></span>]</h2>
+  <h2 id="title">零用金支出-登錄 [<span id="version"></span>]</h2>
 
   <!-- 登錄表單 -->
   <form id="expenseForm">
@@ -104,6 +104,7 @@
   <div id="queryResult"></div>
 
   <!-- 查詢功能 -->
+  //本月
   <script>
     document.getElementById("queryMonthBtn").addEventListener("click", () => sendQuery("本月"));
 
@@ -164,7 +165,8 @@
 
       document.getElementById("queryResult").innerHTML = html;
     }
-
+    
+  //本月分類
   document.getElementById("queryMonthCategoryBtn")
   .addEventListener("click", () => sendQuery("本月分類"));
 
@@ -227,7 +229,7 @@ async function sendQuery(command){
       html += `<tr>
         <td>${dateStr}</td>
         <td>${r[10]}</td>
-          <td>${Number(r[5]).toLocaleString()}</td>
+        <td>${Number(r[5]).toLocaleString()}</td>
         <td>${r[7]}</td>
         <td>${r[6]}</td>
         <td>${r[8]}</td>
@@ -309,6 +311,7 @@ async function sendQuery(command){
   </script>
 </body>
 </html>
+
 
 
 
