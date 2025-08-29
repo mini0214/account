@@ -128,18 +128,20 @@
       let html = `<table>
         <tr>
           <th>日期</th>
-          <th>金額</th>
-          <th>分類</th>
           <th>店家</th>
+          <th>金額</th>
+          <th>付款</th>
+          <th>分類</th>
           <th>備註</th>
         </tr>`;
 
       json.rows.forEach(r => {
         html += `<tr>
           <td>${r[4]}</td>
+          <td>${r[10]}</td>
           <td>${r[5]}</td>
-          <td>${r[6]}</td>
           <td>${r[7]}</td>
+          <td>${r[6]}</td>
           <td>${r[8]}</td>
         </tr>`;
       });
@@ -218,3 +220,4 @@
   </script>
 </body>
 </html>
+
