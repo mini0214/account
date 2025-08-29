@@ -139,7 +139,9 @@
       }
       html += `</table></div>`;
       html += `<canvas id="categoryChart" width="300" height="300" style="margin-top:20px;"></canvas>`;
-      html += `<div class="total">📌 本月總額：${Number(json.total).toLocaleString()} 元（共 ${countDisplay} 筆）</div>`;
+      console.log("json.count =", json.count);
+      console.log("是否為數字 =", !isNaN(Number(json.count)));
+      html += `<div class="total">📌 本月總額：${Number(json.total).toLocaleString()} 元（共 ${Number(json.count).toLocaleString()} 筆）</div>`;
     }
 
     // 👉 本月明細
@@ -284,6 +286,7 @@
   </script>
 </body>
 </html>
+
 
 
 
