@@ -104,7 +104,7 @@
   <div id="queryResult"></div>
 
   <!-- 查詢功能 -->
-  //本月
+  <!-- 本月 -->
   <script>
     document.getElementById("queryMonthBtn").addEventListener("click", () => sendQuery("本月"));
 
@@ -166,7 +166,7 @@
       document.getElementById("queryResult").innerHTML = html;
     }
     
-  //本月分類
+  <!-- 本月分類 -->
   document.getElementById("queryMonthCategoryBtn")
   .addEventListener("click", () => sendQuery("本月分類"));
 
@@ -198,7 +198,7 @@ async function sendQuery(command){
 
     for (const [cat, amt] of Object.entries(json.categories)) {
       const percent = ((amt / json.total) * 100).toFixed(1);
-      html += `<tr><td>${cat}</td><td>${amt}</td><td>${percent}%</td></tr>`;
+      html += `<tr><td>${cat}</td><td>${Number(amt).toLocaleString()}</td><td>${percent}%</td></tr>`;
     }
     html += `</table></div>`;
     html += `<div class="total">📌 本月總額：${Number(json.total).toLocaleString()} 元（共 ${Number(json.count).toLocaleString()} 筆）</div>`;
@@ -311,6 +311,7 @@ async function sendQuery(command){
   </script>
 </body>
 </html>
+
 
 
 
