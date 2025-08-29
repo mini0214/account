@@ -136,8 +136,20 @@
         </tr>`;
 
       json.rows.forEach(r => {
+        // 轉換日期 (UTC -> 台灣 yyyy-MM-dd)
+        let dateStr = "";
+        if (r[4]) {
+          const d = new Date(r[4]);
+          dateStr = d.toLocaleDateString("zh-TW", {
+            timeZone: "Asia/Taipei",
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit"
+          });
+        }
+      
         html += `<tr>
-          <td>${r[4]}</td>
+          <td>${dateStr}</td>
           <td>${r[10]}</td>
           <td>${r[5]}</td>
           <td>${r[7]}</td>
@@ -220,4 +232,5 @@
   </script>
 </body>
 </html>
+
 
