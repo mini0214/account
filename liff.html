@@ -152,7 +152,7 @@
         html += `<tr>
           <td>${dateStr}</td>   //依上面轉換台灣格式
           <td>${r[10]}</td>
-          <td>${r[5]}</td>
+          <td>${Number(r[5]).toLocaleString()}</td>
           <td>${r[7]}</td>
           <td>${r[6]}</td>
           <td>${r[8]}</td>
@@ -160,7 +160,7 @@
       });
 
       html += `</table>`;
-      html += `<div class="total">📌 本月總額：${json.total} 元（共 ${json.count} 筆）</div>`;
+      html += `<div class="total">📌 本月總額：${Number(json.total).toLocaleString()} 元（共 ${Number(json.count).toLocaleString()} 筆）</div>`;
 
       document.getElementById("queryResult").innerHTML = html;
     }
@@ -199,7 +199,7 @@ async function sendQuery(command){
       html += `<tr><td>${cat}</td><td>${amt}</td><td>${percent}%</td></tr>`;
     }
     html += `</table></div>`;
-    html += `<div class="total">📌 本月總額：${json.total} 元（共 ${json.count} 筆）</div>`;
+    html += `<div class="total">📌 本月總額：${Number(json.total).toLocaleString()} 元（共 ${Number(json.count).toLocaleString()} 筆）</div>`;
   }
 
   // 如果是原本的「本月明細」
@@ -227,14 +227,14 @@ async function sendQuery(command){
       html += `<tr>
         <td>${dateStr}</td>
         <td>${r[10]}</td>
-        <td>${r[5]}</td>
+          <td>${Number(r[5]).toLocaleString()}</td>
         <td>${r[7]}</td>
         <td>${r[6]}</td>
         <td>${r[8]}</td>
       </tr>`;
     });
     html += `</table>`;
-    html += `<div class="total">📌 本月總額：${json.total} 元（共 ${json.count} 筆）</div>`;
+    html += `<div class="total">📌 本月總額：${Number(json.total).toLocaleString()} 元（共 ${Number(json.count).toLocaleString()} 筆）</div>`;
   }
 
   document.getElementById("queryResult").innerHTML = html;
@@ -309,6 +309,7 @@ async function sendQuery(command){
   </script>
 </body>
 </html>
+
 
 
 
