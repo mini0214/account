@@ -99,8 +99,8 @@
 
   <!-- 查詢區塊 -->
   <h3>快速查詢</h3>
-  <button id="queryMonthBtn">📊 查詢本月</button>
-  <button id="queryMonthCategoryBtn">📊 查詢本月分類</button>
+  <button id="queryMonthBtn" style="display: inline-block; margin-right: 10px;">📊 查詢本月</button>
+  <button id="queryMonthCategoryBtn" style="display: inline-block;">📊 查詢本月分類</button>
 
   <div id="queryResult"></div>
 
@@ -220,7 +220,7 @@
   <script>
     const LIFF_ID = "2007975722-rVQMPxKV";  // 換成你的 LIFF ID
     const VERSION = "V.31";                 // 固定版次
-    const API_URL = "https://script.google.com/macros/s/AKfycbxxORoh3ueDMRL3a3dloD_EH_9ai_ejAc2mzosmxqOepBTzzC3T42PWoLeDI-DHvMOEgw/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbxxORoh3ueDMRL3a3dloD_EH_9ai_ejAc2mzosmxqOepBTzzC3T42PWoLeDI-DHvMOEgw/exec";  // 換成你的 GAS PATH
 
     document.getElementById("version").textContent = VERSION;
 
@@ -284,6 +284,7 @@
   </script>
 </body>
 </html>
+
 
 
 
