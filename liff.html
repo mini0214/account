@@ -113,7 +113,7 @@
   async function sendQuery(command){
     const body = { type: "query", command: command };
 
-    const res = await fetch("https://script.google.com/macros/s/AKfycbxxORoh3ueDMRL3a3dloD_EH_9ai_ejAc2mzosmxqOepBTzzC3T42PWoLeDI-DHvMOEgw/exec", {
+    const res = await fetch(API_URL, {
       method: "POST",
       body: JSON.stringify(body)
     });
@@ -220,6 +220,7 @@
   <script>
     const LIFF_ID = "2007975722-rVQMPxKV";  // 換成你的 LIFF ID
     const VERSION = "V.31";                 // 固定版次
+    const API_URL = "https://script.google.com/macros/s/AKfycbxxORoh3ueDMRL3a3dloD_EH_9ai_ejAc2mzosmxqOepBTzzC3T42PWoLeDI-DHvMOEgw/exec";
 
     document.getElementById("version").textContent = VERSION;
 
@@ -263,7 +264,7 @@
         createdAt: taiwanTime
       };
 
-      const apiUrl = "https://script.google.com/macros/s/AKfycbxxORoh3ueDMRL3a3dloD_EH_9ai_ejAc2mzosmxqOepBTzzC3T42PWoLeDI-DHvMOEgw/exec"; 
+      const apiUrl = API_URL; 
       try {
         const res = await fetch(apiUrl, {
           method: "POST",
@@ -283,6 +284,7 @@
   </script>
 </body>
 </html>
+
 
 
 
