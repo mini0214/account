@@ -99,6 +99,7 @@
   <!-- 查詢區塊 -->
   <h3>快速查詢</h3>
   <button id="queryMonthBtn">📊 查詢本月</button>
+  <button id="queryMonthCategoryBtn">📊 查詢本月分類</button>
 
   <div id="queryResult"></div>
 
@@ -149,7 +150,7 @@
         }
       
         html += `<tr>
-          <td>${dateStr}</td>
+          <td>${dateStr}</td>   //依上面轉換台灣格式
           <td>${r[10]}</td>
           <td>${r[5]}</td>
           <td>${r[7]}</td>
@@ -163,6 +164,82 @@
 
       document.getElementById("queryResult").innerHTML = html;
     }
+
+  document.getElementById("queryMonthCategoryBtn")
+  .addEventListener("click", () => sendQuery("本月分類"));
+
+async function sendQuery(command){
+  const body = {
+    type: "query",
+    command: command
+  };
+
+  const res = await fetch("https://script.google.com/macros/s/AKfycbyakxXdS29wdKAmH1Uld2NX1DXGTVF0gS14uTLHRuiM3w6xsvzolarZnqJSy5wvl1_ZHA/exec", {
+    method: "POST",
+    body: JSON.stringify(body)
+  });
+
+  const json = await res.json();
+
+  if (!json.ok) {
+    document.getElementById("queryResult").innerHTML = `<p style="color:red">❌ 查詢失敗</p>`;
+    return;
+  }
+
+  let html = "";
+
+  // 如果是本月分類
+  if (command === "本月分類" && json.categories) {
+    html += `<div style="border:2px solid #4CAF50; padding:10px; margin-top:15px; border-radius:8px; background:#f9fff9;">`;
+    html += `<h4 style="margin:0 0 10px 0;">📊 本月分類統計</h4>`;
+    html += `<table><tr><th>分類</th><th>金額</th><th>占比</th></tr>`;
+
+    for (const [cat, amt] of Object.entries(json.categories)) {
+      const percent = ((amt / json.total) * 100).toFixed(1);
+      html += `<tr><td>${cat}</td><td>${amt}</td><td>${percent}%</td></tr>`;
+    }
+    html += `</table></div>`;
+    html += `<div class="total">📌 本月總額：${json.total} 元（共 ${json.count} 筆）</div>`;
+  }
+
+  // 如果是原本的「本月明細」
+  if (command === "本月" && json.rows && json.rows.length > 0) {
+    html += `<table>
+      <tr>
+        <th>日期</th>
+        <th>店家</th>
+        <th>金額</th>
+        <th>付款</th>
+        <th>分類</th>
+        <th>備註</th>
+      </tr>`;
+    json.rows.forEach(r => {
+      let dateStr = "";
+      if (r[4]) {
+        const d = new Date(r[4]);
+        dateStr = d.toLocaleDateString("zh-TW", {
+          timeZone: "Asia/Taipei",
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit"
+        });
+      }
+      html += `<tr>
+        <td>${dateStr}</td>
+        <td>${r[10]}</td>
+        <td>${r[5]}</td>
+        <td>${r[7]}</td>
+        <td>${r[6]}</td>
+        <td>${r[8]}</td>
+      </tr>`;
+    });
+    html += `</table>`;
+    html += `<div class="total">📌 本月總額：${json.total} 元（共 ${json.count} 筆）</div>`;
+  }
+
+  document.getElementById("queryResult").innerHTML = html;
+}
+
   </script>
 
   <!-- LIFF 初始化 + 登錄送出 -->
@@ -232,5 +309,6 @@
   </script>
 </body>
 </html>
+
 
 
