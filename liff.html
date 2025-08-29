@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <title>零用金支出帳簿</title>
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>  //引入 Chart.js 在 <head> 區塊中加入 CDN：
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>  <!-- 引入 Chart.js 在 <head> 區塊中加入 CDN：-->
 
   <style>
     body {
@@ -162,7 +162,45 @@
       });
 
       html += `</table>`;
+      html += `<canvas id="categoryChart" width="300" height="300" style="margin-top:20px;"></canvas>`;  //加入 canvas 元素
       html += `<div class="total">📌 本月總額：${Number(json.total).toLocaleString()} 元（共 ${Number(json.count).toLocaleString()} 筆）</div>`;
+
+  //建立圖表
+  setTimeout(() => {
+    const ctx = document.getElementById('categoryChart').getContext('2d');
+    const labels = Object.keys(json.categories);
+    const data = Object.values(json.categories);
+  
+    new Chart(ctx, {
+      type: 'bar',   //長條圖
+      data: {
+        labels: labels,
+        datasets: [{
+          data: data,
+          backgroundColor: [
+            '#FF6384', '#36A2EB', '#FFCE56', '#4CAF50', '#FF9800', '#9C27B0', '#00BCD4'
+          ],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        plugins: {
+          legend: {
+            position: 'bottom'
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                const value = context.raw;
+                const percent = ((value / json.total) * 100).toFixed(1);
+                return `${context.label}: ${Number(value).toLocaleString()} 元 (${percent}%)`;
+              }
+            }
+          }
+        }
+      }
+    });
+  }, 100); // 確保 DOM 已渲染完成
 
       document.getElementById("queryResult").innerHTML = html;
     }
@@ -212,7 +250,7 @@ async function sendQuery(command){
     const data = Object.values(json.categories);
   
     new Chart(ctx, {
-      type: 'pie',
+      type: 'pie',  //圓餅圖
       data: {
         labels: labels,
         datasets: [{
@@ -349,6 +387,7 @@ async function sendQuery(command){
   </script>
 </body>
 </html>
+
 
 
 
