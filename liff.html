@@ -18,15 +18,15 @@
     }
 
     label {
-      font-size: 26px;
+      font-size: 20px;
       font-weight: bold;
       display: block;
       margin-top: 10px;
     }
 
     input {
-      font-size: 24px;
-      padding: 10px;
+      font-size: 18px;
+      padding: 8px;
       width: 95%;
       margin-top: 5px;
       border-radius: 8px;
@@ -34,14 +34,38 @@
     }
 
     button {
-      font-size: 20px;
-      padding: 12px 20px;
-      border-radius: 10px;
+      font-size: 18px;
+      padding: 10px;
+      border-radius: 8px;
       background-color: #4CAF50;
       color: white;
       border: none;
       width: 100%;
-      margin-top: 20px;
+      margin-top: 15px;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 15px;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    .total {
+      margin-top: 10px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #d9534f;
     }
   </style>
 </head>
@@ -73,20 +97,16 @@
   </form>
 
   <!-- 查詢區塊 -->
-  <h3>查詢指令</h3>
-  <input type="text" id="queryInput" placeholder="輸入例：本月" style="width:95%;font-size:18px;padding:8px;">
-  <button id="queryBtn" style="margin-top:10px;">查詢</button>
+  <h3>快速查詢</h3>
+  <button id="queryMonthBtn">📊 查詢本月</button>
 
-  <pre id="queryResult" style="margin-top:15px; font-size:16px; color:blue;"></pre>
+  <div id="queryResult"></div>
 
   <!-- 查詢功能 -->
   <script>
-    document.getElementById("queryBtn").addEventListener("click", sendQuery);
+    document.getElementById("queryMonthBtn").addEventListener("click", () => sendQuery("本月"));
 
-    async function sendQuery(){
-      const command = document.getElementById("queryInput").value.trim();
-      if (!command) return alert("請輸入查詢指令");
-
+    async function sendQuery(command){
       const body = {
         type: "query",
         command: command
@@ -98,7 +118,36 @@
       });
 
       const json = await res.json();
-      document.getElementById("queryResult").textContent = JSON.stringify(json, null, 2);
+
+      if (!json.ok) {
+        document.getElementById("queryResult").innerHTML = `<p style="color:red">❌ 查詢失敗</p>`;
+        return;
+      }
+
+      // 表格輸出
+      let html = `<table>
+        <tr>
+          <th>日期</th>
+          <th>金額</th>
+          <th>分類</th>
+          <th>店家</th>
+          <th>備註</th>
+        </tr>`;
+
+      json.rows.forEach(r => {
+        html += `<tr>
+          <td>${r[4]}</td>
+          <td>${r[5]}</td>
+          <td>${r[6]}</td>
+          <td>${r[7]}</td>
+          <td>${r[8]}</td>
+        </tr>`;
+      });
+
+      html += `</table>`;
+      html += `<div class="total">📌 本月總額：${json.total} 元（共 ${json.count} 筆）</div>`;
+
+      document.getElementById("queryResult").innerHTML = html;
     }
   </script>
 
