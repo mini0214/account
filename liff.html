@@ -4,7 +4,6 @@
   <meta charset="utf-8">
   <title>零用金支出帳簿</title>
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>  <!-- 引入 Chart.js 在 <head> 區塊中加入 CDN：-->
 
   <style>
     body {
@@ -68,12 +67,6 @@
       font-weight: bold;
       color: #d9534f;
     }
-    <!--按下感-->
-    button:active {
-    transform: scale(0.97);
-    box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
-    }
-
   </style>
 </head>
 <body>
@@ -84,13 +77,13 @@
   <form id="expenseForm">
     <label>日期：</label>
     <input type="date" id="date" required><br><br>
-
+    
     <label>店家：</label>
     <input type="text" id="store" placeholder="選填，請輸入店家"><br><br>          
-
+    
     <label>金額：</label>
     <input type="number" id="amount" required placeholder="必填，請輸入金額"><br><br>
-
+    
     <label>付款：</label>
     <input type="text" id="merchant" required placeholder="必填，請輸入付款方式"><br><br>
 
@@ -113,44 +106,28 @@
   <!-- 查詢功能 -->
   <!-- 本月 -->
   <script>
-  document.getElementById("queryMonthBtn").addEventListener("click", () => sendQuery("本月"));
-  document.getElementById("queryMonthCategoryBtn").addEventListener("click", () => sendQuery("本月分類"));
+    document.getElementById("queryMonthBtn").addEventListener("click", () => sendQuery("本月"));
 
-  async function sendQuery(command){
-    const body = { type: "query", command: command };
+    async function sendQuery(command){
+      const body = {
+        type: "query",
+        command: command
+      };
 
-    const res = await fetch(API_URL, {
-      method: "POST",
-      body: JSON.stringify(body)
-    });
+      const res = await fetch("https://script.google.com/macros/s/AKfycbwMijNx7xvxY7lRGQgQBRZiBl7QCWopdM33hGcFLQUHnYiLDxMGruSUw3AVBWoCcXiTBA/exec", {
+        method: "POST",
+        body: JSON.stringify(body)
+      });
 
-    const json = await res.json();
+      const json = await res.json();
 
-    if (!json.ok) {
-      document.getElementById("queryResult").innerHTML = `<p style="color:red">❌ 查詢失敗</p>`;
-      return;
-    }
-
-    let html = "";
-
-    // 👉 本月分類
-    if (command === "本月分類" && json.categories) {
-      html += `<div style="border:2px solid #4CAF50; padding:10px; margin-top:15px; border-radius:8px; background:#f9fff9;">`;
-      html += `<h4 style="margin:0 0 10px 0;">📊 本月分類統計</h4>`;
-      html += `<table><tr><th>分類</th><th>金額</th><th>占比</th></tr>`;
-
-      for (const [cat, amt] of Object.entries(json.categories)) {
-        const percent = ((amt / json.total) * 100).toFixed(1);
-        html += `<tr><td>${cat}</td><td>${Number(amt).toLocaleString()}</td><td>${percent}%</td></tr>`;
+      if (!json.ok) {
+        document.getElementById("queryResult").innerHTML = `<p style="color:red">❌ 查詢失敗</p>`;
+        return;
       }
-      html += `</table></div>`;
-      html += `<canvas id="categoryChart" width="300" height="300" style="margin-top:20px;"></canvas>`;
-      html += `<div class="total">📌 本月總額：${Number(json.total).toLocaleString()} 元（共 ${Number(json.count).toLocaleString()} 筆）</div>`;
-    }
 
-    // 👉 本月明細
-    if (command === "本月" && json.rows && json.rows.length > 0) {
-      html += `<table>
+      // 表格輸出
+      let html = `<table>
         <tr>
           <th>日期</th>
           <th>店家</th>
@@ -159,7 +136,9 @@
           <th>分類</th>
           <th>備註</th>
         </tr>`;
+
       json.rows.forEach(r => {
+        // 轉換日期 (UTC -> 台灣 yyyy-MM-dd)
         let dateStr = "";
         if (r[4]) {
           const d = new Date(r[4]);
@@ -170,8 +149,9 @@
             day: "2-digit"
           });
         }
+      
         html += `<tr>
-          <td>${dateStr}</td>
+          <td>${dateStr}</td>   //依上面轉換台灣格式
           <td>${r[10]}</td>
           <td>${Number(r[5]).toLocaleString()}</td>
           <td>${r[7]}</td>
@@ -179,55 +159,95 @@
           <td>${r[8]}</td>
         </tr>`;
       });
+
       html += `</table>`;
-      html += `<canvas id="categoryChart" width="300" height="300" style="margin-top:20px;"></canvas>`;
       html += `<div class="total">📌 本月總額：${Number(json.total).toLocaleString()} 元（共 ${Number(json.count).toLocaleString()} 筆）</div>`;
+
+      document.getElementById("queryResult").innerHTML = html;
     }
+    
+  <!-- 本月分類 -->
+  document.getElementById("queryMonthCategoryBtn")
+  .addEventListener("click", () => sendQuery("本月分類"));
 
-    document.getElementById("queryResult").innerHTML = html;
+async function sendQuery(command){
+  const body = {
+    type: "query",
+    command: command
+  };
 
-    // 👉 畫圖表（兩個查詢都要）
-    if (json.categories) {
-      const ctx = document.getElementById('categoryChart').getContext('2d');
-      const labels = Object.keys(json.categories);
-      const data = Object.values(json.categories);
+  const res = await fetch("https://script.google.com/macros/s/AKfycbwMijNx7xvxY7lRGQgQBRZiBl7QCWopdM33hGcFLQUHnYiLDxMGruSUw3AVBWoCcXiTBA/exec", {
+    method: "POST",
+    body: JSON.stringify(body)
+  });
 
-      new Chart(ctx, {
-        type: (command === "本月分類" ? 'pie' : 'bar'),
-        data: {
-          labels: labels,
-          datasets: [{
-            data: data,
-            backgroundColor: ['#FF6384','#36A2EB','#FFCE56','#4CAF50','#FF9800','#9C27B0','#00BCD4'],
-            borderWidth: 1
-          }]
-        },
-        options: {
-          plugins: {
-            legend: { position: 'bottom' },
-            tooltip: {
-              callbacks: {
-                label: function(context) {
-                  const value = context.raw;
-                  const percent = ((value / json.total) * 100).toFixed(1);
-                  return `${context.label}: ${Number(value).toLocaleString()} 元 (${percent}%)`;
-                }
-              }
-            }
-          }
-        }
-      });
-    }
+  const json = await res.json();
+
+  if (!json.ok) {
+    document.getElementById("queryResult").innerHTML = `<p style="color:red">❌ 查詢失敗</p>`;
+    return;
   }
-</script>
 
+  let html = "";
+
+  // 如果是本月分類
+  if (command === "本月分類" && json.categories) {
+    html += `<div style="border:2px solid #4CAF50; padding:10px; margin-top:15px; border-radius:8px; background:#f9fff9;">`;
+    html += `<h4 style="margin:0 0 10px 0;">📊 本月分類統計</h4>`;
+    html += `<table><tr><th>分類</th><th>金額</th><th>占比</th></tr>`;
+
+    for (const [cat, amt] of Object.entries(json.categories)) {
+      const percent = ((amt / json.total) * 100).toFixed(1);
+      html += `<tr><td>${cat}</td><td>${Number(amt).toLocaleString()}</td><td>${percent}%</td></tr>`;
+    }
+    html += `</table></div>`;
+    html += `<div class="total">📌 本月總額：${Number(json.total).toLocaleString()} 元（共 ${Number(json.count).toLocaleString()} 筆）</div>`;
+  }
+
+  // 如果是原本的「本月明細」
+  if (command === "本月" && json.rows && json.rows.length > 0) {
+    html += `<table>
+      <tr>
+        <th>日期</th>
+        <th>店家</th>
+        <th>金額</th>
+        <th>付款</th>
+        <th>分類</th>
+        <th>備註</th>
+      </tr>`;
+    json.rows.forEach(r => {
+      let dateStr = "";
+      if (r[4]) {
+        const d = new Date(r[4]);
+        dateStr = d.toLocaleDateString("zh-TW", {
+          timeZone: "Asia/Taipei",
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit"
+        });
+      }
+      html += `<tr>
+        <td>${dateStr}</td>
+        <td>${r[10]}</td>
+        <td>${Number(r[5]).toLocaleString()}</td>
+        <td>${r[7]}</td>
+        <td>${r[6]}</td>
+        <td>${r[8]}</td>
+      </tr>`;
+    });
+    html += `</table>`;
+    html += `<div class="total">📌 本月總額：${Number(json.total).toLocaleString()} 元（共 ${Number(json.count).toLocaleString()} 筆）</div>`;
+  }
+
+  document.getElementById("queryResult").innerHTML = html;
+}
+
+  </script>
 
   <!-- LIFF 初始化 + 登錄送出 -->
   <script>
     const LIFF_ID = "2007975722-rVQMPxKV";  // 換成你的 LIFF ID
-    const VERSION = "V.32";                 // 固定版次
-    const VERSION = "V.33";                 // 固定版次
-    const API_URL = "https://script.google.com/macros/s/AKfycbxxORoh3ueDMRL3a3dloD_EH_9ai_ejAc2mzosmxqOepBTzzC3T42PWoLeDI-DHvMOEgw/exec";  // 換成你的 GAS PATH
+    const VERSION = "V.34";                 // 固定版次
 
     document.getElementById("version").textContent = VERSION;
 
@@ -251,13 +271,13 @@
       const note = document.getElementById("note").value;
 
       const profile = await liff.getProfile();
-
+      
       const now = new Date();
       const taiwanTime = new Date(now.getTime() + (8 * 60 * 60 * 1000))
         .toISOString()
         .replace("T", " ")
         .split(".")[0]; 
-
+      
       const payload = {
         version: VERSION,
         userId: profile.userId,
@@ -271,7 +291,7 @@
         createdAt: taiwanTime
       };
 
-      const apiUrl = API_URL; 
+      const apiUrl = "https://script.google.com/macros/s/AKfycbwMijNx7xvxY7lRGQgQBRZiBl7QCWopdM33hGcFLQUHnYiLDxMGruSUw3AVBWoCcXiTBA/exec"; 
       try {
         const res = await fetch(apiUrl, {
           method: "POST",
@@ -291,3 +311,9 @@
   </script>
 </body>
 </html>
+
+
+
+
+
+
