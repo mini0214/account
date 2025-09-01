@@ -1,316 +1,149 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-TW">
 <head>
-  <meta charset="utf-8">
-  <title>零用金支出帳簿</title>
-  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>  <!-- 引入 Chart.js 在 <head> 區塊中加入 CDN：-->
-
+  <meta charset="UTF-8">
+  <title>LIFF 自助查詢</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-    }
-
-    h2 {
-      font-size: 24px;
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    label {
-      font-size: 20px;
-      font-weight: bold;
-      display: block;
-      margin-top: 10px;
-    }
-
-    input {
-      font-size: 18px;
-      padding: 8px;
-      width: 95%;
-      margin-top: 5px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-    }
-
-    button {
-      font-size: 18px;
-      padding: 10px;
-      border-radius: 8px;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      width: 100%;
-      margin-top: 15px;
-    }
-
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      margin-top: 15px;
-    }
-
-    th, td {
-      border: 1px solid #ddd;
-      padding: 8px;
-      text-align: center;
-      font-size: 14px;
-    }
-
-    th {
-      background-color: #f2f2f2;
-    }
-
-    .total {
-      margin-top: 10px;
-      font-size: 18px;
-      font-weight: bold;
-      color: #d9534f;
-    }
-    <!--按下感-->
-    button:active {
-    transform: scale(0.97);
-    box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
-    }
-
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f8f9fa; }
+    h2 { margin-top: 30px; }
+    input, button { padding: 6px 12px; font-size: 16px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; background: #fff; }
+    th, td { border: 1px solid #ccc; padding: 6px; text-align: center; }
+    th { background: #f1f1f1; }
+    .total { margin-top: 15px; font-weight: bold; }
+    .chart-container { margin-top: 20px; }
   </style>
 </head>
 <body>
+  <h1>📊 自助查詢</h1>
 
-  <h2 id="title">零用金支出-登錄 [<span id="version"></span>]</h2>
+  <input type="text" id="queryInput" placeholder="輸入指令 (例：本月、本月分類)">
+  <button onclick="sendQuery()">查詢</button>
+  <button onclick="sendQuick('本月')">📅 本月</button>
+  <button onclick="sendQuick('本月分類')">📂 本月分類</button>
 
-  <!-- 登錄表單 -->
-  <form id="expenseForm">
-    <label>日期：</label>
-    <input type="date" id="date" required><br><br>
-    
-    <label>店家：</label>
-    <input type="text" id="store" placeholder="選填，請輸入店家"><br><br>          
-    
-    <label>金額：</label>
-    <input type="number" id="amount" required placeholder="必填，請輸入金額"><br><br>
-    
-    <label>付款：</label>
-    <input type="text" id="merchant" required placeholder="必填，請輸入付款方式"><br><br>
-
-    <label>分類：</label>
-    <input type="text" id="category" required placeholder="必填，請輸入分類"><br><br>
-
-    <label>備註：</label>
-    <input type="text" id="note" placeholder="選填，請輸入備註"><br><br>               
-
-    <button type="submit">送出</button>
-  </form>
-
-  <!-- 查詢區塊 -->
-  <h3>快速查詢</h3>
-  <button id="queryMonthBtn">📊 查詢本月</button>
-  <button id="queryMonthCategoryBtn">📊 查詢本月分類</button>
-  
   <div id="queryResult"></div>
-  
-  <!-- 查詢功能 -->
-  <!-- 本月 -->
+
   <script>
-  document.getElementById("queryMonthBtn").addEventListener("click", () => sendQuery("本月"));
-  document.getElementById("queryMonthCategoryBtn").addEventListener("click", () => sendQuery("本月分類"));
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbyhtpmHPy2JAqTwvRpwxIYSZgMljetOwsHVlfpdYtktLdzfOsYDttdZTEt3yjDIZJvQow/exec"; // TODO: 換成你的 GAS 部署網址
 
-  async function sendQuery(command){
-    const body = { type: "query", command: command };
-
-    const res = await fetch(API_URL, {
-      method: "POST",
-      body: JSON.stringify(body)
-    });
-
-    const json = await res.json();
-
-    if (!json.ok) {
-      document.getElementById("queryResult").innerHTML = `<p style="color:red">❌ 查詢失敗</p>`;
-      return;
+    function sendQuick(cmd) {
+      document.getElementById("queryInput").value = cmd;
+      sendQuery();
     }
 
-    let html = "";
+    async function sendQuery() {
+      const command = document.getElementById("queryInput").value.trim();
+      if (!command) return alert("請輸入查詢指令");
 
-    // 👉 本月分類
-    if (command === "本月分類" && json.categories) {
-      html += `<div style="border:2px solid #4CAF50; padding:10px; margin-top:15px; border-radius:8px; background:#f9fff9;">`;
-      html += `<h4 style="margin:0 0 10px 0;">📊 本月分類統計</h4>`;
-      html += `<table><tr><th>分類</th><th>金額</th><th>占比</th></tr>`;
-
-      for (const [cat, amt] of Object.entries(json.categories)) {
-        const percent = ((amt / json.total) * 100).toFixed(1);
-        html += `<tr><td>${cat}</td><td>${Number(amt).toLocaleString()}</td><td>${percent}%</td></tr>`;
-      }
-      html += `</table></div>`;
-      html += `<canvas id="categoryChart" width="300" height="300" style="margin-top:20px;"></canvas>`;
-      html += `<div class="total">📌 本月總額：${Number(json.total).toLocaleString()} 元（共 ${Number(json.count).toLocaleString()} 筆）</div>`;
-    }
-
-    // 👉 本月明細
-    if (command === "本月" && json.rows && json.rows.length > 0) {
-      html += `<table>
-        <tr>
-          <th>日期</th>
-          <th>店家</th>
-          <th>金額</th>
-          <th>付款</th>
-          <th>分類</th>
-          <th>備註</th>
-        </tr>`;
-      json.rows.forEach(r => {
-        let dateStr = "";
-        if (r[4]) {
-          const d = new Date(r[4]);
-          dateStr = d.toLocaleDateString("zh-TW", {
-            timeZone: "Asia/Taipei",
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit"
-          });
-        }
-        html += `<tr>
-          <td>${dateStr}</td>
-          <td>${r[10]}</td>
-          <td>${Number(r[5]).toLocaleString()}</td>
-          <td>${r[7]}</td>
-          <td>${r[6]}</td>
-          <td>${r[8]}</td>
-        </tr>`;
+      const resp = await fetch(GAS_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "query", command })
       });
-      html += `</table>`;
-      html += `<canvas id="categoryChart" width="300" height="300" style="margin-top:20px;"></canvas>`;
-      html += `<div class="total">📌 本月總額：${Number(json.total).toLocaleString()} 元（共 ${Number(json.count).toLocaleString()} 筆）</div>`;
-    }
+      const json = await resp.json();
+      console.log("查詢結果", json);
 
-    document.getElementById("queryResult").innerHTML = html;
+      let html = `<h2>🔍 查詢結果：${command}</h2>`;
 
-    // 👉 畫圖表（兩個查詢都要）
-    if (json.categories) {
-      const ctx = document.getElementById('categoryChart').getContext('2d');
-      const labels = Object.keys(json.categories);
-      const data = Object.values(json.categories);
-
-      new Chart(ctx, {
-        type: (command === "本月分類" ? 'pie' : 'bar'),
-        data: {
-          labels: labels,
-          datasets: [{
-            data: data,
-            backgroundColor: ['#FF6384','#36A2EB','#FFCE56','#4CAF50','#FF9800','#9C27B0','#00BCD4'],
-            borderWidth: 1
-          }]
-        },
-        options: {
-          plugins: {
-            legend: { position: 'bottom' },
-            tooltip: {
-              callbacks: {
-                label: function(context) {
-                  const value = context.raw;
-                  const percent = ((value / json.total) * 100).toFixed(1);
-                  return `${context.label}: ${Number(value).toLocaleString()} 元 (${percent}%)`;
-                }
-              }
-            }
+      // === 本月 ===
+      if (command === "本月" && json.rows && json.rows.length > 0) {
+        html += `<table>
+          <tr>
+            <th>日期</th>
+            <th>店家</th>
+            <th>金額</th>
+            <th>付款</th>
+            <th>分類</th>
+            <th>備註</th>
+          </tr>`;
+        json.rows.forEach(r => {
+          let dateStr = "";
+          if (r[4]) {
+            const d = new Date(r[4]);
+            dateStr = d.toLocaleDateString("zh-TW", {
+              timeZone: "Asia/Taipei",
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit"
+            });
           }
-        }
-      });
-    }
-  }
-</script>
-
-
-  <!-- LIFF 初始化 + 登錄送出 -->
-  <script>
-    const LIFF_ID = "2007975722-rVQMPxKV";  // 換成你的 LIFF ID
-    const VERSION = "V.33";                 // 固定版次
-    const API_URL = "https://script.google.com/macros/s/AKfycbxxORoh3ueDMRL3a3dloD_EH_9ai_ejAc2mzosmxqOepBTzzC3T42PWoLeDI-DHvMOEgw/exec";  // 換成你的 GAS PATH
-
-    document.getElementById("version").textContent = VERSION;
-
-    async function main() {
-      await liff.init({ liffId: LIFF_ID });
-      if (!liff.isLoggedIn()) liff.login();
-
-      // 預設日期為今天
-      document.getElementById("date").valueAsDate = new Date();
-    }
-    main();
-
-    document.getElementById("expenseForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      const date = document.getElementById("date").value;
-      const store = document.getElementById("store").value;
-      const amount = document.getElementById("amount").value;
-      const merchant = document.getElementById("merchant").value;
-      const category = document.getElementById("category").value;
-      const note = document.getElementById("note").value;
-
-      const profile = await liff.getProfile();
-      
-      const now = new Date();
-      const taiwanTime = new Date(now.getTime() + (8 * 60 * 60 * 1000))
-        .toISOString()
-        .replace("T", " ")
-        .split(".")[0]; 
-      
-      const payload = {
-        version: VERSION,
-        userId: profile.userId,
-        displayName: profile.displayName,
-        inputDate: date,
-        store: store,
-        amount: amount,
-        merchant: merchant,
-        category: category,
-        note: note,
-        createdAt: taiwanTime
-      };
-
-      const apiUrl = API_URL; 
-      try {
-        const res = await fetch(apiUrl, {
-          method: "POST",
-          body: JSON.stringify(payload)
+          html += `<tr>
+            <td>${dateStr}</td>
+            <td>${r[10] || ""}</td>
+            <td>${Number(r[5]).toLocaleString()}</td>
+            <td>${r[7] || ""}</td>
+            <td>${r[6] || ""}</td>
+            <td>${r[8] || ""}</td>
+          </tr>`;
         });
-
-        const result = await res.json();
-        alert("✅ 已送出！");
-
-        document.getElementById("expenseForm").reset();
-        document.getElementById("date").valueAsDate = new Date();
-
-      } catch(err) {
-        alert("❌ 送出失敗：" + err.message);
+        html += `</table>`;
+        html += `<div class="total">📌 本月總額：${Number(json.total).toLocaleString()} 元（共 ${Number(json.count).toLocaleString()} 筆）</div>`;
+        html += `<div class="chart-container"><canvas id="monthChart"></canvas></div>`;
       }
-    });
+
+      // === 本月分類 ===
+      if (command === "本月分類" && json.categories) {
+        // 表格
+        html += `<table>
+          <tr><th>分類</th><th>金額</th></tr>`;
+        Object.keys(json.categories).forEach(cat => {
+          html += `<tr><td>${cat}</td><td>${json.categories[cat].toLocaleString()}</td></tr>`;
+        });
+        html += `</table>`;
+        html += `<div class="total">📌 本月總額：${Number(json.total).toLocaleString()} 元</div>`;
+        html += `<div class="chart-container"><canvas id="categoryChart"></canvas></div>`;
+      }
+
+      document.getElementById("queryResult").innerHTML = html;
+
+      // === 畫圖 ===
+      if (command === "本月" && json.rows) {
+        const daily = {};
+        json.rows.forEach(r => {
+          if (r[4]) {
+            const d = new Date(r[4]);
+            const dateStr = d.toLocaleDateString("zh-TW", {
+              timeZone: "Asia/Taipei",
+              month: "2-digit",
+              day: "2-digit"
+            });
+            daily[dateStr] = (daily[dateStr] || 0) + Number(r[5]);
+          }
+        });
+        const ctx = document.getElementById('monthChart').getContext('2d');
+        new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: Object.keys(daily),
+            datasets: [{
+              label: '每日支出',
+              data: Object.values(daily),
+              backgroundColor: '#36A2EB'
+            }]
+          },
+          options: {
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true } }
+          }
+        });
+      }
+
+      if (command === "本月分類" && json.categories) {
+        const ctx = document.getElementById('categoryChart').getContext('2d');
+        new Chart(ctx, {
+          type: 'pie',
+          data: {
+            labels: Object.keys(json.categories),
+            datasets: [{
+              data: Object.values(json.categories),
+              backgroundColor: ['#FF6384','#36A2EB','#FFCE56','#4CAF50','#FF9800','#9C27B0','#00BCD4']
+            }]
+          }
+        });
+      }
+    }
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
