@@ -26,7 +26,7 @@
   <div id="queryResult"></div>
 
   <script>
-    const GAS_URL = "你的_GAS_WebApp_URL"; // TODO: 換成你的 GAS 部署網址
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbwMijNx7xvxY7lRGQgQBRZiBl7QCWopdM33hGcFLQUHnYiLDxMGruSUw3AVBWoCcXiTBA/exec"; // TODO: 換成你的 GAS 部署網址
 
     function sendQuick(cmd) {
       document.getElementById("queryInput").value = cmd;
