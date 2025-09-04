@@ -124,7 +124,7 @@
   <!-- 查詢區塊 -->
   <h3>看看您花多少</h3>
   <button id="queryMonthBtn">📊 查詢本月</button>
-  <button id="queryMonthtypeBtn">⭕🥧 查詢本月分類</button>
+  <button id="queryMonthtypeBtn">⭕ 查詢本月分類</button>
   
   <div id="queryResult"></div>
   
@@ -154,7 +154,7 @@
     // 👉 本月分類
     if (command === "本月分類" && json.categories) {
       html += `<div style="border:2px solid #4CAF50; padding:10px; margin-top:15px; border-radius:8px; background:#f9fff9;">`;
-      html += `<h4 style="margin:0 0 10px 0;">📊⭕🥧 本月分類統計</h4>`;
+      html += `<h4 style="margin:0 0 10px 0;">⭕ 本月分類統計</h4>`;
       html += `<table><tr><th>分類</th><th>金額</th><th>占比</th></tr>`;
 
       for (const [cat, amt] of Object.entries(json.categories)) {
@@ -205,7 +205,7 @@
       });
       html += `</table>`;
       html += `<canvas id="typeChart" width="300" height="300" style="margin-top:20px;"></canvas>`;
-      html += `<div class="total">📌 本月總額：${Number(json.total).toLocaleString()} 元（共 ${Number(json.count).toLocaleString()} 筆）</div>`;
+      html += `<div class="total">📌 本月總額.：${Number(json.total).toLocaleString()} 元（共 ${Number(json.count).toLocaleString()} 筆）</div>`;
     }
 
     document.getElementById("queryResult").innerHTML = html;
@@ -319,4 +319,5 @@
   </script>
 </body>
 </html>
+
 
