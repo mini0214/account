@@ -74,9 +74,14 @@
       font-weight: bold;
       color: #d9534f;
     }
-    <!--按下感-->
+    <!--按下感CSS微動畫-->
+    button:hover {
+    /* :hover 代表滑鼠移到元素上時的狀態 */ 
+    transform: scale(1.25);
+    }
+    /* :active是滑鼠點擊元素的狀態 */
     button:active {
-    transform: scale(2);
+    transform: scale(0.97);
     box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
     }
 
@@ -313,6 +318,7 @@
   </script>
 </body>
 </html>
+
 
 
 
