@@ -98,11 +98,8 @@
     <input type="number" id="income" placeholder="選填，請輸入收入金額"><br><br>
         
     <label>支出：</label>
-    <input type="number" id="payout" placeholder="選填，請輸入支出金額"><br><br>
-    
-    <label>金額：</label>
-    <input type="number" id="income-payout" placeholder="請確認金額"><br><br>
-    
+    <input type="number" id="payout" placeholder="選填，請輸入支出金額"><br><br>    
+   
     <label>付款：</label>
     <input type="text" id="payment" required placeholder="必填，請輸入付款方式"><br><br>
 
@@ -160,7 +157,7 @@
       }
       html += `</table></div>`;
       html += `<canvas id="typeChart" width="300" height="300" style="margin-top:20px;"></canvas>`;
-      html += `<div class="total">📌 本月總額：${Number(json.total).toLocaleString()} 元（共 ${Number(json.count).toLocaleString()} 筆）</div>`;
+      html += `<div class="total">📌 本月總額：${Number(json.total).toLocaleString()} 元（共 ${Number(json.count)} 筆）</div>`;
     }
 
     // 👉 本月明細
@@ -317,6 +314,7 @@
   </script>
 </body>
 </html>
+
 
 
 
