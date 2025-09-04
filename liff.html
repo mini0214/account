@@ -76,7 +76,7 @@
     }
     <!--按下感-->
     button:active {
-    transform: scale(0.97);
+    transform: scale(0.57);
     box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
     }
 
@@ -157,7 +157,7 @@
       }
       html += `</table></div>`;
       html += `<canvas id="typeChart" width="300" height="300" style="margin-top:20px;"></canvas>`;
-      html += `<div class="total">📌 本月總額：${Number(json.total).toLocaleString()} 元（共 ${Number(json.count)} 筆）</div>`;
+      html += `<div class="total">📌 本月總額：${Number(json.total).toLocaleString()} 元（共 ${Number(json.count).toLocaleString()} 筆）</div>`;
     }
 
     // 👉 本月明細
@@ -313,6 +313,7 @@
   </script>
 </body>
 </html>
+
 
 
 
