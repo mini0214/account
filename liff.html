@@ -164,7 +164,9 @@
       html += `</table></div>`;
       html += `<canvas id="typeChart" width="300" height="300" style="margin-top:20px;"></canvas>`;
       //html += `<div class="total">📌 本月總額：${Number(json.total).toLocaleString()} 元（共 ${Number(json.count).toLocaleString()} 筆）</div>`;
-      html += `<div class="total">📌 本月總額：${Number(json.total || 0).toLocaleString()} 元（共 ${parseInt(json.count || 0).toLocaleString()} 筆）</div>`;
+      //html += `<div class="total">📌 本月總額：${Number(json.total || 0).toLocaleString()} 元（共 ${parseInt(json.count || 0).toLocaleString()} 筆）</div>`;
+      const categoryCount = Object.keys(json.categories).length;
+      html += `<div class="total">📌 本月總額：${Number(json.total || 0).toLocaleString()} 元（共 ${categoryCount} 筆）</div>`;
     }
 
     // 👉 本月明細
@@ -320,6 +322,7 @@
   </script>
 </body>
 </html>
+
 
 
 
