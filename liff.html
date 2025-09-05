@@ -100,11 +100,14 @@
     <label>店家：</label>
     <input type="text" id="store" placeholder="選填"><br><br>        
         
-    <label>收入：</label>
-    <input type="number" id="income" placeholder="選填，請輸入收入金額"><br><br>
-        
-    <label>支出：</label>
-    <input type="number" id="payout" placeholder="選填，請輸入支出金額"><br><br>        
+    <!-- 收入 / 支出 放在同一行 -->
+    <div style="display: flex; align-items: center; gap: 20px; margin-top: 10px;">
+      <label style="color: blue;">收入：</label>
+      <input type="number" id="income" placeholder="選填，請輸入收入金額" style="width:120px;">
+    
+      <label style="color: red;">支出：</label>
+      <input type="number" id="payout" placeholder="選填，請輸入支出金額" style="width:120px;">
+    </div>       
        
     <label>付款：</label>
     <input type="text" id="payment" required placeholder="必填，請輸入付款方式"><br><br>
@@ -320,6 +323,7 @@
   </script>
 </body>
 </html>
+
 
 
 
