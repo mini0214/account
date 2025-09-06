@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>零用金支出帳簿.[<span id="version"></title>
+  <title>零用金支出帳簿</title>
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>  <!-- 引入 Chart.js 在 <head> 區塊中加入 CDN：-->
 
@@ -90,7 +90,7 @@
 </head>
 <body>
 
-  <h2 id="title">非記不可</span>]</h2>
+  <h2 id="title">非記不可.[<span id="version"></span>]</h2>
 
   <!-- 登錄表單 -->
   <form id="expenseForm">
@@ -105,8 +105,8 @@
       <button type="button" id="btnIncome" class="toggle-btn">收入</button>
       <button type="button" id="btnPayout" class="toggle-btn active">支出</button>
     
-      <input type="number" id="income" placeholder="請輸入收入金額" style="width:550px; color:blue; display:none;">
-      <input type="number" id="payout" placeholder="請輸入支出金額" style="width:550px; color:red; display:inline-block;">
+      <input type="number" id="income" placeholder="請輸入收入金額" style="width:650px; color:blue; display:none;">
+      <input type="number" id="payout" placeholder="請輸入支出金額" style="width:650px; color:red; display:inline-block;">
     </div>
     
     <style>
@@ -374,6 +374,7 @@
   </script>
 </body>
 </html>
+
 
 
 
