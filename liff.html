@@ -100,13 +100,13 @@
     <label>店家：</label>
     <input type="text" id="store" placeholder="選填"><br><br>        
 
-    <label>收入/支出：</label>
+    <!-- <label>收入/支出：</label>-->
     <div style="display: flex; align-items: center; gap: 10px; margin-top: 10px;">
       <button type="button" id="btnIncome" class="toggle-btn">收入</button>
       <button type="button" id="btnPayout" class="toggle-btn">支出</button>
     
-      <input type="number" id="income" placeholder="請輸入收入金額" style="width:200px; color:blue; display:none;">
-      <input type="number" id="payout" placeholder="請輸入支出金額" style="width:200px; color:red; display:none;">
+      <input type="number" id="income" placeholder="請輸入收入金額" style="width:400px; color:blue; display:none;"><br><br>
+      <input type="number" id="payout" placeholder="請輸入支出金額" style="width:400px; color:red; display:none;"><br><br>
     </div>
     
     <style>
@@ -115,7 +115,7 @@
         border: none;
         border-radius: 6px;
         cursor: pointer;
-        font-size: 16px;
+        font-size: 40px;
         opacity: 0.6;       /* 預設暗淡 */
         transition: all 0.2s;
       }
@@ -158,8 +158,7 @@
         income.style.display = "none";
         income.value = "";
       });
-    </script>
-  
+    </script>  
        
     <label>付款：</label>
     <input type="text" id="payment" required placeholder="必填，請輸入付款方式"><br><br>
@@ -375,6 +374,7 @@
   </script>
 </body>
 </html>
+
 
 
 
