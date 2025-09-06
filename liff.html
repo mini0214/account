@@ -101,10 +101,65 @@
     <input type="text" id="store" placeholder="選填"><br><br>        
 
     <label>收入/支出：</label>
-    <div style="display: flex; align-items: center; gap: 20px; margin-top: 10px;">
-      <input type="number" id="income" placeholder="請輸入收入金額" style="width:490px; color: blue;">
-      <input type="number" id="payout" placeholder="請輸入支出金額" style="width:490px; color: red;">
-    </div>   
+    <div style="display: flex; align-items: center; gap: 10px; margin-top: 10px;">
+      <button type="button" id="btnIncome" class="toggle-btn">收入</button>
+      <button type="button" id="btnPayout" class="toggle-btn">支出</button>
+    
+      <input type="number" id="income" placeholder="請輸入收入金額" style="width:200px; color:blue; display:none;">
+      <input type="number" id="payout" placeholder="請輸入支出金額" style="width:200px; color:red; display:none;">
+    </div>
+    
+    <style>
+      .toggle-btn {
+        padding: 8px 20px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 16px;
+        opacity: 0.6;       /* 預設暗淡 */
+        transition: all 0.2s;
+      }
+      #btnIncome { background: #4CAF50; color: white; }
+      #btnPayout { background: #f44336; color: white; }
+    
+      .active {
+        opacity: 1;         /* 選中變亮 */
+        box-shadow: 0 0 6px rgba(0,0,0,0.3);
+      }
+    </style>
+    
+    <script>
+      const btnIncome = document.getElementById("btnIncome");
+      const btnPayout = document.getElementById("btnPayout");
+      const income = document.getElementById("income");
+      const payout = document.getElementById("payout");
+    
+      function resetButtons() {
+        btnIncome.classList.remove("active");
+        btnPayout.classList.remove("active");
+      }
+    
+      btnIncome.addEventListener("click", () => {
+        resetButtons();
+        btnIncome.classList.add("active");
+    
+        income.style.display = "inline-block";
+        income.value = "";
+        payout.style.display = "none";
+        payout.value = "";
+      });
+    
+      btnPayout.addEventListener("click", () => {
+        resetButtons();
+        btnPayout.classList.add("active");
+    
+        payout.style.display = "inline-block";
+        payout.value = "";
+        income.style.display = "none";
+        income.value = "";
+      });
+    </script>
+  
        
     <label>付款：</label>
     <input type="text" id="payment" required placeholder="必填，請輸入付款方式"><br><br>
@@ -320,6 +375,7 @@
   </script>
 </body>
 </html>
+
 
 
 
