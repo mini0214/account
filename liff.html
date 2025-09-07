@@ -85,6 +85,21 @@
     transform: scale(1);
     box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
     }
+    
+    /* 類別按鈕 */
+    .type-btn {
+      margin: 5px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      background: #eee;
+      cursor: pointer;
+    }
+    .type-btn.active {
+      background: #4CAF50;
+      color: white;
+      border: 1px solid #4CAF50;
+    }
 
   </style>
 </head>
@@ -317,50 +332,41 @@
       // 預設日期為今天
       document.getElementById("date").valueAsDate = new Date();
 
-      async function loadPayments() {
-        const res = await fetch(API_URL); // 呼叫 doGet
+// 抓取 payment 資料產生分類按鈕
+    async function loadPayments() {
+      try {
+        const res = await fetch(API_URL);  // 呼叫 doGet
         const json = await res.json();
         if (!json.ok) return;
-      
+
         const container = document.getElementById("typeButtons");
         container.innerHTML = "";
-      
+
         json.payments.forEach(payment => {
           const btn = document.createElement("button");
           btn.textContent = payment;
           btn.type = "button";
-          btn.style.margin = "5px";
-          btn.style.padding = "8px 12px";
-          btn.style.borderRadius = "6px";
-          btn.style.border = "1px solid #ccc";
-          btn.style.background = "#eee";
-          btn.style.cursor = "pointer";
-      
+          btn.classList.add("type-btn");
+
           btn.addEventListener("click", () => {
-            // 全部按鈕恢復灰色
-            [...container.querySelectorAll("button")].forEach(b => {
-              b.style.background = "#eee";
-              b.style.color = "black";
-            });
-      
-            // 選中的變綠色
-            btn.style.background = "#4CAF50";
-            btn.style.color = "white";
-      
-            // 存到 hidden input
+            // 全部按鈕清掉 active
+            [...container.querySelectorAll("button")].forEach(b => b.classList.remove("active"));
+
+            // 設定選中的
+            btn.classList.add("active");
+
+            // 存值
             document.getElementById("type").value = payment;
           });
-      
+
           container.appendChild(btn);
         });
+      } catch (err) {
+        console.error("載入分類失敗", err);
       }
-      
-      // 初始化時呼叫
-      loadPayments();
-            
     }
-    main();
 
+    // 送出表單
     document.getElementById("expenseForm").addEventListener("submit", async (e) => {
       e.preventDefault();
 
@@ -417,6 +423,7 @@
   </script>
 </body>
 </html>
+
 
 
 
