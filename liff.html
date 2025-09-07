@@ -164,7 +164,8 @@
     <input type="text" id="payment" required placeholder="必填，請輸入付款方式"><br><br>
 
     <label>分類：</label>
-    <input type="text" id="type" required placeholder="必填，請輸入分類"><br><br>
+    <div id="typeButtons"></div>
+    <input type="hidden" id="type">  <!-- 用來存選中的值 -->
 
     <label>附註：</label>
     <input type="text" id="note" placeholder="選填"><br><br>    
@@ -304,8 +305,8 @@
   <!-- LIFF 初始化 + 登錄送出 -->
   <script>
     const LIFF_ID = "2007975722-rVQMPxKV";  // 換成你的 LIFF ID
-    const VERSION = "V4";                 // 固定版次
-    const API_URL = "https://script.google.com/macros/s/AKfycbznh6llWIivI09v_N0L1XGQL0GLD0MQw2hn5fmNMOFYb07UoGmxfKVSp-ISe1hJQHL8/exec";  // 換成你的 GAS PATH
+    const VERSION = "V6";                 // 固定版次
+    const API_URL = "https://script.google.com/macros/s/AKfycbzJpAs8JGuV8Dy9dvxS0C07ytkb18qmeDr8HKSxXfIJyLAJrTj02Tocc2S008VJLeod/exec";  // 換成你的 GAS PATH
 
     document.getElementById("version").textContent = VERSION;
 
@@ -315,6 +316,48 @@
 
       // 預設日期為今天
       document.getElementById("date").valueAsDate = new Date();
+
+      async function loadPayments() {
+        const res = await fetch(API_URL); // 呼叫 doGet
+        const json = await res.json();
+        if (!json.ok) return;
+      
+        const container = document.getElementById("typeButtons");
+        container.innerHTML = "";
+      
+        json.payments.forEach(payment => {
+          const btn = document.createElement("button");
+          btn.textContent = payment;
+          btn.type = "button";
+          btn.style.margin = "5px";
+          btn.style.padding = "8px 12px";
+          btn.style.borderRadius = "6px";
+          btn.style.border = "1px solid #ccc";
+          btn.style.background = "#eee";
+          btn.style.cursor = "pointer";
+      
+          btn.addEventListener("click", () => {
+            // 全部按鈕恢復灰色
+            [...container.querySelectorAll("button")].forEach(b => {
+              b.style.background = "#eee";
+              b.style.color = "black";
+            });
+      
+            // 選中的變綠色
+            btn.style.background = "#4CAF50";
+            btn.style.color = "white";
+      
+            // 存到 hidden input
+            document.getElementById("type").value = payment;
+          });
+      
+          container.appendChild(btn);
+        });
+      }
+      
+      // 初始化時呼叫
+      loadPayments();
+            
     }
     main();
 
@@ -374,6 +417,7 @@
   </script>
 </body>
 </html>
+
 
 
 
