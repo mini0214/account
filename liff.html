@@ -54,6 +54,8 @@
       display: flex;
       align-items: center;
       margin: 20px 0;
+      display: inline-block; /* ✅ 換成 inline-block 比較不會被擠下去 */
+      white-space: nowrap;   /* ✅ 關鍵：不允許自動換行 */
     }
   
     .form-row label {
@@ -425,6 +427,7 @@
   </script>
 </body>
 </html>
+
 
 
 
