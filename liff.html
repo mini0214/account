@@ -9,31 +9,31 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      padding: 60px;
+      padding: 50px;
     }
 
     h2 {
-      font-size: 64px;
+      font-size: 50px;
       text-align: center;
-      margin-bottom: 60px;
+      margin-bottom: 50px;
     }
 
     h3 {
-      font-size: 64px;
+      font-size: 50px;
       text-align: center;
-      margin-bottom: 60px;
+      margin-bottom: 50px;
     }
 
     label {
-      font-size: 60px;
+      font-size: 50px;
       font-weight: bold;
       display: inline-block; /* ✅ 換成 inline-block 比較不會被擠下去 */
-      margin-top: 40px;
+      margin-top: 50px;
       white-space: nowrap;   /* ✅ 關鍵：不允許自動換行 */
     }
 
     input {
-      font-size: 68px;
+      font-size: 50px;
       padding: 25px;
       width: 100%;
       margin-top: 5px;
@@ -42,7 +42,7 @@
     }
 
     select {
-      font-size: 68px;
+      font-size: 50px;
       padding: 25px;
       width: 100%;
       margin-top: 5px;
@@ -55,19 +55,19 @@
       align-items: center;
       margin: 20px 0;
       display: inline-block; /* ✅ 換成 inline-block 比較不會被擠下去 */
-      margin-top: 40px;
+      margin-top: 50px;
       white-space: nowrap;   /* ✅ 關鍵：不允許自動換行 */
     }
   
     .form-row label {
-      font-size: 60px;
+      font-size: 50px;
       font-weight: bold;
       margin-right: 20px;
       white-space: nowrap;
     }
   
     .form-row input {
-      font-size: 68px;
+      font-size: 50px;
       padding: 25px;
       width: 50%;
       border-radius: 8px;
@@ -75,7 +75,7 @@
     }
     
     button {
-      font-size: 68px;
+      font-size: 50px;
       padding: 25px;
       border-radius: 8px;
       background-color: #4CAF50;
@@ -103,8 +103,8 @@
     }
 
     .total {
-      margin-top: 40px;
-      font-size: 68px;
+      margin-top: 50px;
+      font-size: 50px;
       font-weight: bold;
       color: #d9534f;
     }
@@ -194,29 +194,38 @@
         income.style.display = "none";
         income.value = "";
       });
-    </script>
-      
-    <label>付款：</label>
-    <select id="payment" required>
-      <option value="">請選擇付款方式</option>
-      <option value="現金">現金</option>
-      <option value="信用卡">信用卡</option>
-      <option value="LINE Pay">LINE Pay</option>
-      <option value="銀行轉帳">銀行轉帳</option>
-    </select>
-    <br><br>
+    </script>      
+  
+    <div class="form-row">
+      <label for="payment">付款：</label>
+      <select id="payment" required>
+        <option value="">請選擇付款方式</option>
+        <option value="現金">現金</option>
+        <option value="信用卡">信用卡</option>
+        <option value="LINE Pay">LINE Pay</option>
+        <option value="銀行轉帳">銀行轉帳</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <label for="payment">分類：</label>
+      <select id="payment" required>
+        <option value="">請選擇分類</option>
+        <option value="食">食</option>
+        <option value="衣">衣</option>
+        <option value="住">住</option>
+        <option value="行">行</option>
+        <option value="育">育</option>
+        <option value="樂">樂</option>
+        <option value="其他">其他</option>
+        <option value="收入">收入</option>   
+      </select>
+    </div>
 
     <label>分類：</label>
       <select id="type" required>
       <option value="">請選擇分類</option>
-      <option value="食">食</option>
-      <option value="衣">衣</option>
-      <option value="住">住</option>
-      <option value="行">行</option>
-      <option value="育">育</option>
-      <option value="樂">樂</option>
-      <option value="其他">其他</option>
-      <option value="收入">收入</option>     
+  
     </select>
     <br><br> 
 
@@ -432,6 +441,7 @@
   </script>
 </body>
 </html>
+
 
 
 
