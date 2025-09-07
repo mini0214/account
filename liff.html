@@ -27,8 +27,9 @@
     label {
       font-size: 60px;
       font-weight: bold;
-      display: block;
+      display: inline-block; /* ✅ 換成 inline-block 比較不會被擠下去 */
       margin-top: 40px;
+      white-space: nowrap;   /* ✅ 關鍵：不允許自動換行 */
     }
 
     input {
@@ -48,7 +49,28 @@
       border-radius: 8px;
       border: 1px solid #ccc;
     }
-
+    
+    .form-row {
+      display: flex;
+      align-items: center;
+      margin: 20px 0;
+    }
+  
+    .form-row label {
+      font-size: 60px;
+      font-weight: bold;
+      margin-right: 20px;
+      white-space: nowrap;
+    }
+  
+    .form-row input {
+      font-size: 68px;
+      padding: 25px;
+      width: 50%;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    
     button {
       font-size: 68px;
       padding: 25px;
@@ -106,12 +128,10 @@
     <label>日期：</label>
     <input type="date" id="date" required><br><br>
     
-    <label for="store" style="font-size:60px; font-weight:bold; display:inline-block; margin-right:20px;">
-      店家：
-    </label>
-    <input type="text" id="store" placeholder="選填"
-      style="font-size:68px; padding:25px; width:50%; border-radius:8px; border:1px solid #ccc;">
-    <br><br>     
+    <div class="form-row">
+      <label for="store">店家：</label>
+      <input type="text" id="store" placeholder="選填">
+    </div>
 
     <div style="display: flex; align-items: center; gap: 10px; margin-top: 10px;">
       <button type="button" id="btnIncome" class="toggle-btn">收入</button>
@@ -404,6 +424,7 @@
   </script>
 </body>
 </html>
+
 
 
 
