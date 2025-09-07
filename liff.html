@@ -83,7 +83,12 @@
     }
 
     .form-block {
+      display: flex;
+      align-items: center;
       margin: 20px 0;
+      display: inline-block; /* ✅ 換成 inline-block 比較不會被擠下去 */
+      margin-top: 50px;
+      white-space: nowrap;   /* ✅ 關鍵：不允許自動換行 */
     }
   
     .form-block label {
@@ -461,6 +466,7 @@
   </script>
 </body>
 </html>
+
 
 
 
