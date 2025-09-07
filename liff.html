@@ -161,7 +161,14 @@
     </script>
       
     <label>付款：</label>
-    <input type="text" id="payment" required placeholder="必填，請輸入付款方式"><br><br>
+    <select id="payment" required>
+      <option value="">請選擇付款方式</option>
+      <option value="現金">現金</option>
+      <option value="信用卡">信用卡</option>
+      <option value="LINE Pay">LINE Pay</option>
+      <option value="銀行轉帳">銀行轉帳</option>
+    </select>
+    <br><br>
 
     <label>分類：</label>
     <input type="text" id="type" required placeholder="必填，請輸入分類"><br><br>
@@ -374,25 +381,3 @@
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
