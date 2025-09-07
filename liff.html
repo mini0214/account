@@ -55,6 +55,7 @@
       align-items: center;
       margin: 20px 0;
       display: inline-block; /* ✅ 換成 inline-block 比較不會被擠下去 */
+      margin-top: 40px;
       white-space: nowrap;   /* ✅ 關鍵：不允許自動換行 */
     }
   
@@ -217,13 +218,17 @@
       <option value="其他">其他</option>
       <option value="收入">收入</option>     
     </select>
-    <br><br>
+    <br><br> 
 
-    <label>附註：</label>
-    <input type="text" id="note" placeholder="選填"><br><br>    
+    <div class="form-row">
+      <label for="store">附註：</label>
+      <input type="text" id="note" placeholder="選填">
+    </div>
 
-    <label>備註：</label>
-    <input type="text" id="memo" placeholder="選填"><br><br> 
+    <div class="form-row">
+      <label for="store">備註：</label>
+      <input type="text" id="memo" placeholder="選填">
+    </div>
 
     <button type="submit">送出</button>
   </form>
@@ -427,6 +432,7 @@
   </script>
 </body>
 </html>
+
 
 
 
