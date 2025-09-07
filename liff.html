@@ -171,7 +171,18 @@
     <br><br>
 
     <label>分類：</label>
-    <input type="text" id="type" required placeholder="必填，請輸入分類"><br><br>
+      <select id="type" required>
+      <option value="">請選擇分類</option>
+      <option value="食">食</option>
+      <option value="衣">衣</option>
+      <option value="住">住</option>
+      <option value="行">行</option>
+      <option value="育">育</option>
+      <option value="樂">樂</option>
+      <option value="其他">其他</option>
+      <option value="收入">收入</option>     
+    </select>
+    <br><br>
 
     <label>附註：</label>
     <input type="text" id="note" placeholder="選填"><br><br>    
@@ -381,3 +392,4 @@
   </script>
 </body>
 </html>
+
