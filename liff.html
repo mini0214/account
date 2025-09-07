@@ -105,6 +105,23 @@
       font-weight: bold;
       color: #d9534f;
     }
+
+     .toggle-btn {
+        padding: 8px 20px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 30px;
+        opacity: 0.6;       /* 預設暗淡 */
+        transition: opacity 0.2s, box-shadow 0.2s;
+      }
+      #btnIncome { background: #000080; color: white; }
+      #btnPayout { background: #f44336; color: white; }
+    
+      .active {
+        opacity: 1;         /* 選中變亮 */
+        box-shadow: 0 0 6px rgba(0,0,0,0.3);
+      }
     
     <!--按下感CSS微動畫-->
     button:hover {
@@ -125,9 +142,12 @@
 
   <!-- 登錄表單 -->
   <form id="expenseForm">
-    <label>日期：</label>
-    <input type="date" id="date" required><br><br>
     
+    <div class="form-row">
+      <label for="store">日期：</label>
+      <input type="date" id="date" placeholder="選填">
+    </div>    
+  
     <div class="form-row">
       <label for="store">店家：</label>
       <input type="text" id="store" placeholder="選填">
@@ -139,26 +159,7 @@
     
       <input type="number" id="income" placeholder="請輸入收入金額" style="width:650px; color:blue; display:none;">
       <input type="number" id="payout" placeholder="請輸入支出金額" style="width:650px; color:red; display:inline-block;">
-    </div>
-    
-    <style>
-      .toggle-btn {
-        padding: 8px 20px;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 30px;
-        opacity: 0.6;       /* 預設暗淡 */
-        transition: opacity 0.2s, box-shadow 0.2s;
-      }
-      #btnIncome { background: #000080; color: white; }
-      #btnPayout { background: #f44336; color: white; }
-    
-      .active {
-        opacity: 1;         /* 選中變亮 */
-        box-shadow: 0 0 6px rgba(0,0,0,0.3);
-      }
-    </style>
+    </div>   
     
     <script>
       const btnIncome = document.getElementById("btnIncome");
@@ -424,6 +425,7 @@
   </script>
 </body>
 </html>
+
 
 
 
