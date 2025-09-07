@@ -85,21 +85,6 @@
     transform: scale(1);
     box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
     }
-    
-    /* 類別按鈕 */
-    .type-btn {
-      margin: 5px;
-      padding: 8px 12px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      background: #eee;
-      cursor: pointer;
-    }
-    .type-btn.active {
-      background: #4CAF50;
-      color: white;
-      border: 1px solid #4CAF50;
-    }
 
   </style>
 </head>
@@ -179,8 +164,7 @@
     <input type="text" id="payment" required placeholder="必填，請輸入付款方式"><br><br>
 
     <label>分類：</label>
-    <div id="typeButtons"></div>
-    <input type="hidden" id="type">  <!-- 用來存選中的值 -->
+    <input type="text" id="type" required placeholder="必填，請輸入分類"><br><br>
 
     <label>附註：</label>
     <input type="text" id="note" placeholder="選填"><br><br>    
@@ -320,8 +304,8 @@
   <!-- LIFF 初始化 + 登錄送出 -->
   <script>
     const LIFF_ID = "2007975722-rVQMPxKV";  // 換成你的 LIFF ID
-    const VERSION = "V7";                 // 固定版次
-    const API_URL = "https://script.google.com/macros/s/AKfycbz5sIrtC7W5xmA0bmMjrybP7_8wUPTVZzNTYFoc0NL1wnNY8oX5B8GotpV7c_-zXTb4/exec";  // 換成你的 GAS PATH
+    const VERSION = "V8";                 // 固定版次
+    const API_URL = "https://script.google.com/macros/s/AKfycbznlvO54VTJNCvKju9yCcRKAshJcf_ymuMsgWyvedqIjOIJYxBDxd_GpB7TjWX2rXJL/exec";  // 換成你的 GAS PATH
 
     document.getElementById("version").textContent = VERSION;
 
@@ -331,42 +315,9 @@
 
       // 預設日期為今天
       document.getElementById("date").valueAsDate = new Date();
-
-// 抓取 payment 資料產生分類按鈕
-    async function loadPayments() {
-      try {
-        const res = await fetch(API_URL);  // 呼叫 doGet
-        const json = await res.json();
-        if (!json.ok) return;
-
-        const container = document.getElementById("typeButtons");
-        container.innerHTML = "";
-
-        json.payments.forEach(payment => {
-          const btn = document.createElement("button");
-          btn.textContent = payment;
-          btn.type = "button";
-          btn.classList.add("type-btn");
-
-          btn.addEventListener("click", () => {
-            // 全部按鈕清掉 active
-            [...container.querySelectorAll("button")].forEach(b => b.classList.remove("active"));
-
-            // 設定選中的
-            btn.classList.add("active");
-
-            // 存值
-            document.getElementById("type").value = payment;
-          });
-
-          container.appendChild(btn);
-        });
-      } catch (err) {
-        console.error("載入分類失敗", err);
-      }
     }
+    main();
 
-    // 送出表單
     document.getElementById("expenseForm").addEventListener("submit", async (e) => {
       e.preventDefault();
 
@@ -423,10 +374,6 @@
   </script>
 </body>
 </html>
-
-
-
-
 
 
 
