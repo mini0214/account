@@ -459,40 +459,79 @@
       });
     }
 
+// 👉 本月分類
+if (command === "本月分類" && json.categories) {
+  html += `<div style="border:2px solid #4CAF50; padding:10px; margin-top:15px; border-radius:8px; background:#f9fff9;">`;
+  html += `<h4 style="margin:0 0 10px 0;">⭕ 本月分類統計</h4>`;
+  html += `<table><tr><th>分類</th><th>金額</th><th>占比</th></tr>`;
 
-    // 👉 畫圖表（兩個查詢都要）
-    if (json.categories) {
-      const ctx = document.getElementById('typeChart').getContext('2d');
-      const labels = Object.keys(json.categories);
-      const data = Object.values(json.categories);
-
-      new Chart(ctx, {
-        type: (command === "本月分類" ? 'pie' : 'bar'),
-        data: {
-          labels: labels,
-          datasets: [{
-            data: data,
-            backgroundColor: ['#FF6384','#36A2EB','#FFCE56','#4CAF50','#FF9800','#9C27B0','#00BCD4'],
-            borderWidth: 1
-          }]
-        },
-        options: {
-          plugins: {
-            legend: { position: 'bottom' },
-            tooltip: {
-              callbacks: {
-                label: function(context) {
-                  const value = context.raw;
-                  const percent = ((value / json.total) * 100).toFixed(1);
-                  return `${context.label}: ${Number(value).toLocaleString()} 元 (${percent}%)`;
-                }
-              }
-            }
-          }
-        }
-      });
-    }
+  for (const [cat, amt] of Object.entries(json.categories)) {
+    const percent = ((amt / json.total) * 100).toFixed(1);
+    html += `<tr><td>${cat}</td><td>${Number(amt).toLocaleString()}</td><td>${percent}%</td></tr>`;
   }
+  html += `</table></div>`;
+
+  // ✅ 圓餅圖
+  html += `<canvas id="typeChart" width="300" height="300" style="margin-top:20px;"></canvas>`;
+  
+  // ✅ 新增本月每日金額長條圖
+  html += `<canvas id="dailyChart" width="500" height="300" style="margin-top:20px;"></canvas>`;
+
+  const categoryCount = Object.keys(json.categories).length;
+  html += `<div class="total">📌 本月總額：${Number(json.total || 0).toLocaleString()} 元（共 ${categoryCount} 筆分類）</div>`;
+}
+
+document.getElementById("queryResult").innerHTML = html;
+
+// === 繪圖 ===
+if (command === "本月分類" && json.categories) {
+  // 🎨 畫分類圓餅圖
+  const ctx1 = document.getElementById("typeChart").getContext("2d");
+  new Chart(ctx1, {
+    type: "pie",
+    data: {
+      labels: Object.keys(json.categories),
+      datasets: [{
+        data: Object.values(json.categories),
+        backgroundColor: ["#FF6384","#36A2EB","#FFCE56","#4BC0C0","#9966FF","#FF9F40","#9CCC65","#EC407A"]
+      }]
+    }
+  });
+
+  // 🎨 畫每日長條圖
+  const ctx2 = document.getElementById("dailyChart").getContext("2d");
+  const rows = json.rows || []; // 從後端要帶上 rows
+  let dailyMap = {};
+
+  rows.forEach(r => {
+    if (!r[4] || !r[5]) return;
+    const d = new Date(r[4]);
+    const dateStr = d.toLocaleDateString("zh-TW", {month:"2-digit", day:"2-digit"});
+    dailyMap[dateStr] = (dailyMap[dateStr] || 0) + Number(r[5]);
+  });
+
+  const labels = Object.keys(dailyMap).sort();
+  const values = labels.map(l => dailyMap[l]);
+
+  new Chart(ctx2, {
+    type: "bar",
+    data: {
+      labels: labels,
+      datasets: [{
+        label: "每日金額",
+        data: values,
+        backgroundColor: "#36A2EB"
+      }]
+    },
+    options: {
+      scales: {
+        y: { beginAtZero: true }
+      }
+    }
+  });
+}
+
+
 </script>
 
 
@@ -571,6 +610,7 @@
   </script>
 </body>
 </html>
+
 
 
 
