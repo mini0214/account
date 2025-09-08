@@ -343,27 +343,22 @@
 
     let html = "";
 
-    // 👉 本月分類
-    if (command === "本月分類" && json.categories) {
-      html += `<div style="border:2px solid #4CAF50; padding:10px; margin-top:15px; border-radius:8px; background:#f9fff9;">`;
-      html += `<h4 style="margin:0 0 10px 0;">⭕ 本月分類統計</h4>`;
-      html += `<table><tr><th>分類</th><th>金額</th><th>占比</th></tr>`;
-
-      for (const [cat, amt] of Object.entries(json.categories)) {
-        const percent = ((amt / json.total) * 100).toFixed(1);
-        html += `<tr><td>${cat}</td><td>${Number(amt).toLocaleString()}</td><td>${percent}%</td></tr>`;
-      }
-      html += `</table></div>`;
-      html += `<canvas id="typeChart" width="300" height="300" style="margin-top:20px;"></canvas>`;
-      const categoryCount = Object.keys(json.categories).length;
-      html += `<div class="total">📌 本月總額：${Number(json.total || 0).toLocaleString()} 元（共 ${categoryCount} 筆分類）</div>`;
-    }
+   let sortAsc = true; // ✅ 預設：日期小到大
 
     // 👉 本月明細
     if (command === "本月" && json.rows && json.rows.length > 0) {
-      html += `<table>
+    
+      // 先排序一次 (小到大)
+      json.rows.sort((a, b) => {
+        const da = a[4] ? new Date(a[4]) : new Date(0);
+        const db = b[4] ? new Date(b[4]) : new Date(0);
+        return da - db;
+      });
+    
+      // ✅ 加上 id="dateHeader"，讓表頭可點擊
+      html += `<table id="dataTable">
         <tr>
-          <th>日期</th>
+          <th id="dateHeader" style="cursor:pointer;">日期 ⬆️</th>
           <th>店家</th>
           <th>收入</th>
           <th>支出</th>
@@ -374,6 +369,7 @@
           <th>附註</th>
           <th>備註</th>
         </tr>`;
+    
       json.rows.forEach(r => {
         let dateStr = "";
         if (r[4]) {
@@ -398,12 +394,71 @@
           <td>${r[10]}</td>
         </tr>`;
       });
+    
       html += `</table>`;
       html += `<canvas id="typeChart" width="300" height="300" style="margin-top:20px;"></canvas>`;
-      html += `<div class="total">📌 本月總額.：${Number(json.total).toLocaleString()} 元（共 ${Number(json.count).toLocaleString()} 筆）</div>`;
+      html += `<div class="total">📌 本月總額：${Number(json.total).toLocaleString()} 元（共 ${Number(json.count).toLocaleString()} 筆）</div>`;
+    }
+    
+    document.getElementById("queryResult").innerHTML = html;
+    
+    // ✅ 註冊點擊事件：切換排序
+    const dateHeader = document.getElementById("dateHeader");
+    if (dateHeader) {
+      dateHeader.addEventListener("click", () => {
+        sortAsc = !sortAsc;
+    
+        json.rows.sort((a, b) => {
+          const da = a[4] ? new Date(a[4]) : new Date(0);
+          const db = b[4] ? new Date(b[4]) : new Date(0);
+          return sortAsc ? da - db : db - da;
+        });
+    
+        // 重新 render 表格
+        let newHtml = `<tr>
+          <th id="dateHeader" style="cursor:pointer;">日期 ${sortAsc ? "⬆️" : "⬇️"}</th>
+          <th>店家</th>
+          <th>收入</th>
+          <th>支出</th>
+          <th>幣別</th>
+          <th>金額</th>
+          <th>付款</th>
+          <th>分類</th>
+          <th>附註</th>
+          <th>備註</th>
+        </tr>`;
+    
+        json.rows.forEach(r => {
+          let dateStr = "";
+          if (r[4]) {
+            const d = new Date(r[4]);
+            dateStr = d.toLocaleDateString("zh-TW", {
+              timeZone: "Asia/Taipei",
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit"
+            });
+          }
+          newHtml += `<tr>
+            <td>${dateStr}</td>
+            <td>${r[8]}</td>
+            <td>${Number(r[11]).toLocaleString()}</td>
+            <td>${Number(r[12]).toLocaleString()}</td>
+            <td>${r[13]}</td>
+            <td>${Number(r[5]).toLocaleString()}</td>
+            <td>${r[7]}</td>
+            <td>${r[6]}</td>
+            <td>${r[9]}</td>
+            <td>${r[10]}</td>
+          </tr>`;
+        });
+    
+        document.querySelector("#dataTable").innerHTML = newHtml;
+        // ⚠️ 重新綁定事件（因為表頭被覆蓋了）
+        document.getElementById("dateHeader").addEventListener("click", arguments.callee);
+      });
     }
 
-    document.getElementById("queryResult").innerHTML = html;
 
     // 👉 畫圖表（兩個查詢都要）
     if (json.categories) {
@@ -516,6 +571,7 @@
   </script>
 </body>
 </html>
+
 
 
 
