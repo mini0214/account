@@ -149,17 +149,17 @@
       color: #d9534f;
     }
 
-   #queryResult table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-      font-size: 50px;   /* ✅ 調整字體大小，跟 .total 接近 */
+     /* ✅ 表格字體放大，跟 total 一樣大 */
+    #queryResult table,
+    #queryResult th,
+    #queryResult td {
+      font-size: 50px !important;
+      padding: 20px !important;
     }
-    
-    #queryResult th, #queryResult td {
-      border: 1px solid #ccc;
-      padding: 12px;
-      text-align: center;
+  
+    button:active {
+      transform: scale(0.97);
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
     }
 
      .toggle-btn {
@@ -500,6 +500,7 @@
   </script>
 </body>
 </html>
+
 
 
 
