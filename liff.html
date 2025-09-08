@@ -240,8 +240,8 @@
       <label for="currency">幣別：</label>
       <select id="currency" required>
         <option value="">請選擇幣別</option>
-        <option value="台幣">台幣</option>
-        <option value="澳幣">澳幣</option>
+        <option value="1">台幣</option>
+        <option value="20">澳幣</option>
       </select>
     </div>
   
@@ -338,8 +338,8 @@
           <th>店家</th>
           <th>收入</th>
           <th>支出</th>
-          <th>金額</th>
           <th>幣別</th>
+          <th>金額</th>
           <th>付款</th>
           <th>分類</th>
           <th>附註</th>
@@ -361,8 +361,8 @@
           <td>${r[8]}</td>
           <td>${Number(r[11]).toLocaleString()}</td>
           <td>${Number(r[12]).toLocaleString()}</td>
-          <td>${Number(r[5]).toLocaleString()}</td>
           <td>${r[13]}</td>
+          <td>${Number(r[5]).toLocaleString()}</td>
           <td>${r[7]}</td>
           <td>${r[6]}</td>
           <td>${r[9]}</td>
@@ -415,8 +415,8 @@
   <!-- LIFF 初始化 + 登錄送出 -->
   <script>
     const LIFF_ID = "2007975722-rVQMPxKV";  // 換成你的 LIFF ID
-    const VERSION = "V10";                 // 固定版次
-    const API_URL = "https://script.google.com/macros/s/AKfycbw-nNGWFIgkZsobf9qeNZW3hIGtff7-PnUYywwXdy54chF-BZGFqmQeNlj--xEbVwLJ/exec";  // 換成你的 GAS PATH
+    const VERSION = "V11";                 // 固定版次
+    const API_URL = "https://script.google.com/macros/s/AKfycbxjfPXz-dNS6xD7MEtO6vT3HBTU9FVgEafQYplh0GyQsdYtfsufZkgkQySg1TTltLg4/exec";  // 換成你的 GAS PATH
 
     document.getElementById("version").textContent = VERSION;
 
@@ -458,8 +458,8 @@
         store: store,
         income: income,
         payout: payout,
-        amount: income-payout,
         currency: currency,
+        amount: (income-payout)*currency,
         payment: payment,
         type: type,
         note: note,
@@ -487,6 +487,3 @@
   </script>
 </body>
 </html>
-
-
-
