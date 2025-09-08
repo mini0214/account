@@ -235,6 +235,15 @@
         income.value = "";
       });
     </script>      
+
+    <div class="form-block">
+      <label for="currency">幣別：</label>
+      <select id="currency" required>
+        <option value="">請選擇幣別</option>
+        <option value="台幣">台幣</option>
+        <option value="澳幣">澳幣</option>
+      </select>
+    </div>
   
     <div class="form-row">
       <label for="payment">付款：</label>
@@ -330,6 +339,7 @@
           <th>收入</th>
           <th>支出</th>
           <th>金額</th>
+          <th>幣別</th>
           <th>付款</th>
           <th>分類</th>
           <th>附註</th>
@@ -352,6 +362,7 @@
           <td>${Number(r[11]).toLocaleString()}</td>
           <td>${Number(r[12]).toLocaleString()}</td>
           <td>${Number(r[5]).toLocaleString()}</td>
+          <td>${r[13]}</td>
           <td>${r[7]}</td>
           <td>${r[6]}</td>
           <td>${r[9]}</td>
@@ -404,8 +415,8 @@
   <!-- LIFF 初始化 + 登錄送出 -->
   <script>
     const LIFF_ID = "2007975722-rVQMPxKV";  // 換成你的 LIFF ID
-    const VERSION = "V8";                 // 固定版次
-    const API_URL = "https://script.google.com/macros/s/AKfycbznlvO54VTJNCvKju9yCcRKAshJcf_ymuMsgWyvedqIjOIJYxBDxd_GpB7TjWX2rXJL/exec";  // 換成你的 GAS PATH
+    const VERSION = "V10";                 // 固定版次
+    const API_URL = "https://script.google.com/macros/s/AKfycbw-nNGWFIgkZsobf9qeNZW3hIGtff7-PnUYywwXdy54chF-BZGFqmQeNlj--xEbVwLJ/exec";  // 換成你的 GAS PATH
 
     document.getElementById("version").textContent = VERSION;
 
@@ -426,6 +437,7 @@
       const income = document.getElementById("income").value;
       const payout = document.getElementById("payout").value;
       const payment = document.getElementById("payment").value;
+      const currency = document.getElementById("currency").value;
       const type = document.getElementById("type").value;
       const note = document.getElementById("note").value;
       const memo = document.getElementById("memo").value;
@@ -447,6 +459,7 @@
         income: income,
         payout: payout,
         amount: income-payout,
+        currency: currency,
         payment: payment,
         type: type,
         note: note,
@@ -474,22 +487,3 @@
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
