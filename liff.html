@@ -324,8 +324,8 @@
 <!-- 查詢功能 -->
 <script>
   document.getElementById("queryMonthBtn").addEventListener("click", () => sendQuery("本月"));
-  document.getElementById("queryMonthtypeBtn").addEventListener("click", () => sendQuery("本月分類"));
   document.getElementById("queryMonthPayBtn").addEventListener("click", () => sendQuery("本月付款"));
+  document.getElementById("queryMonthtypeBtn").addEventListener("click", () => sendQuery("本月分類"));
 
   async function sendQuery(command){
     const body = { type: "query", command: command };
@@ -634,6 +634,7 @@ if (command === "本月付款" && json.payments) {
   </script>
 </body>
 </html>
+
 
 
 
