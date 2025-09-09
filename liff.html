@@ -586,28 +586,40 @@
       });
     }
 
-    if (command === "本月" && json.categories) {
+    // 👉 本月日期統計圖表
+    if (command === "本月" && json.dates) {
       const ctx = document.getElementById('typeChart').getContext('2d');
-      new Chart(ctx, {
+      if (window.dateChart) window.dateChart.destroy(); // 避免重複
+      window.dateChart = new Chart(ctx, {
         type: 'bar',
         data: {
-          labels: Object.keys(json.categories),
+          labels: Object.keys(json.dates),   // ✅ 日期
           datasets: [{
-            data: Object.values(json.categories),
+            data: Object.values(json.dates), // ✅ 每日金額
             backgroundColor: '#36A2EB',
           }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            x: { title: { display: true, text: "日期" } },
+            y: { title: { display: true, text: "金額 (元)" } }
+          }
         }
       });
     }
-  }
+
 </script>
 
 
   <!-- LIFF 初始化 + 登錄送出 -->
   <script>  
     const LIFF_ID = "2007975722-rVQMPxKV";   // 換成你的 LIFF ID
-    const VERSION = "V13";                   // 固定版次
-    const API_URL = "https://script.google.com/macros/s/AKfycbwqtWkSaV6NVhOFuE_2Sw4Y48yC113Tu4s-qfRcpZdqbL64c0f_IDIGqUuJsnyHoXMP/exec";  // 換成你的 GAS PATH
+    const VERSION = "V14";                   // 固定版次
+    const API_URL = "https://script.google.com/macros/s/AKfycbzOPREoRBYhZYwSMo7NQ8SMzbsB8h5UjKgHACeDeve-VLWcRm1VLOf9ATDtsIdkXMPh/exec";  // 換成你的 GAS PATH
 
     document.getElementById("version").textContent = VERSION;
 
@@ -678,4 +690,5 @@
   </script>
 </body>
 </html>
+
 
