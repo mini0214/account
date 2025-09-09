@@ -327,7 +327,7 @@
 <button id="queryMonthBtn">📊 查詢本月</button>
 <button id="queryMonthPayBtn">💳 查詢本月付款</button>
 <button id="queryMonthtypeBtn">⭕ 查詢本月分類</button>
-<button id="queryMonthstoreBtn">⭕ 查詢本月店家</button>
+<button id="queryMonthstoreBtn">📋 查詢本月店家</button>
 
 <div id="queryResult"></div>
 
@@ -360,7 +360,7 @@
     if (command === "本月分類" && json.categories) {
       html += `<div style="border:2px solid #4CAF50; padding:10px; margin-top:15px; border-radius:8px; background:#f9fff9;">`;
       html += `<h4 style="margin:0 0 10px 0;">⭕ 本月分類統計</h4>`;
-      html += `<table><tr><th>分類</th><th>金額</th><th>占比</th></tr>`;
+      html += `<table><tr><th>分類方式</th><th>金額</th><th>占比</th></tr>`;
 
       for (const [cat, amt] of Object.entries(json.categories)) {
         const percent = ((amt / json.total) * 100).toFixed(1);
@@ -392,7 +392,7 @@
     // 👉 本月店家
     if (command === "本月店家" && json.stores) {
       html += `<div style="border:2px solid #2196F3; padding:10px; margin-top:15px; border-radius:8px; background:#f0f8ff;">`;
-      html += `<h4 style="margin:0 0 10px 0;">💳 本月店家統計</h4>`;
+      html += `<h4 style="margin:0 0 10px 0;">📋 本月店家統計</h4>`;
       html += `<table><tr><th>店家方式</th><th>金額</th><th>占比</th></tr>`;
     
       for (const [pay, amt] of Object.entries(json.stores)) {
@@ -676,6 +676,7 @@ if (command === "本月付款" && json.payments) {
   </script>
 </body>
 </html>
+
 
 
 
