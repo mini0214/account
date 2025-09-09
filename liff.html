@@ -606,7 +606,7 @@ if (command === "本月付款" && json.payments) {
         income: income,
         payout: payout,
         currency: currency,
-        amount: math.round((income-payout)*currency),
+        amount: Math.round((income-payout)*currency),
         payment: payment,
         type: type,
         note: note,
@@ -634,6 +634,7 @@ if (command === "本月付款" && json.payments) {
   </script>
 </body>
 </html>
+
 
 
 
