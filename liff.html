@@ -342,20 +342,33 @@
     }
 
     let html = "";
+    let sortAsc = true; // ✅ 預設：日期小到大
 
-   let sortAsc = true; // ✅ 預設：日期小到大
+    // 👉 本月分類
+    if (command === "本月分類" && json.categories) {
+      html += `<div style="border:2px solid #4CAF50; padding:10px; margin-top:15px; border-radius:8px; background:#f9fff9;">`;
+      html += `<h4 style="margin:0 0 10px 0;">⭕ 本月分類統計</h4>`;
+      html += `<table><tr><th>分類</th><th>金額</th><th>占比</th></tr>`;
+
+      for (const [cat, amt] of Object.entries(json.categories)) {
+        const percent = ((amt / json.total) * 100).toFixed(1);
+        html += `<tr><td>${cat}</td><td>${Number(amt).toLocaleString()}</td><td>${percent}%</td></tr>`;
+      }
+
+      html += `</table></div>`;
+      html += `<canvas id="typeChart" width="400" height="400" style="margin-top:20px;"></canvas>`;
+      html += `<div class="total">📌 本月總額：${Number(json.total || 0).toLocaleString()} 元（共 ${Object.keys(json.categories).length} 筆分類）</div>`;
+    }
 
     // 👉 本月明細
     if (command === "本月" && json.rows && json.rows.length > 0) {
-    
       // 先排序一次 (小到大)
       json.rows.sort((a, b) => {
         const da = a[4] ? new Date(a[4]) : new Date(0);
         const db = b[4] ? new Date(b[4]) : new Date(0);
         return da - db;
       });
-    
-      // ✅ 加上 id="dateHeader"，讓表頭可點擊
+
       html += `<table id="dataTable">
         <tr>
           <th id="dateHeader" style="cursor:pointer;">日期 ⬆️</th>
@@ -369,7 +382,7 @@
           <th>附註</th>
           <th>備註</th>
         </tr>`;
-    
+
       json.rows.forEach(r => {
         let dateStr = "";
         if (r[4]) {
@@ -394,27 +407,27 @@
           <td>${r[10]}</td>
         </tr>`;
       });
-    
+
       html += `</table>`;
-      html += `<canvas id="typeChart" width="300" height="300" style="margin-top:20px;"></canvas>`;
+      html += `<canvas id="typeChart" width="400" height="300" style="margin-top:20px;"></canvas>`;
       html += `<div class="total">📌 本月總額：${Number(json.total).toLocaleString()} 元（共 ${Number(json.count).toLocaleString()} 筆）</div>`;
     }
-    
+
+    // 👉 render 畫面
     document.getElementById("queryResult").innerHTML = html;
-    
-    // ✅ 註冊點擊事件：切換排序
+
+    // ✅ 點擊日期排序
     const dateHeader = document.getElementById("dateHeader");
     if (dateHeader) {
-      dateHeader.addEventListener("click", () => {
+      dateHeader.addEventListener("click", function toggleSort() {
         sortAsc = !sortAsc;
-    
+
         json.rows.sort((a, b) => {
           const da = a[4] ? new Date(a[4]) : new Date(0);
           const db = b[4] ? new Date(b[4]) : new Date(0);
           return sortAsc ? da - db : db - da;
         });
-    
-        // 重新 render 表格
+
         let newHtml = `<tr>
           <th id="dateHeader" style="cursor:pointer;">日期 ${sortAsc ? "⬆️" : "⬇️"}</th>
           <th>店家</th>
@@ -427,7 +440,7 @@
           <th>附註</th>
           <th>備註</th>
         </tr>`;
-    
+
         json.rows.forEach(r => {
           let dateStr = "";
           if (r[4]) {
@@ -452,13 +465,11 @@
             <td>${r[10]}</td>
           </tr>`;
         });
-    
+
         document.querySelector("#dataTable").innerHTML = newHtml;
-        // ⚠️ 重新綁定事件（因為表頭被覆蓋了）
-        document.getElementById("dateHeader").addEventListener("click", arguments.callee);
+        document.getElementById("dateHeader").addEventListener("click", toggleSort);
       });
     }
-
 
     // 👉 畫圖表（兩個查詢都要）
     if (json.categories) {
@@ -494,7 +505,6 @@
     }
   }
 </script>
-
 
   <!-- LIFF 初始化 + 登錄送出 -->
   <script>
@@ -571,3 +581,4 @@
   </script>
 </body>
 </html>
+
