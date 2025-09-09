@@ -327,6 +327,7 @@
 <button id="queryMonthBtn">📊 查詢本月</button>
 <button id="queryMonthPayBtn">💳 查詢本月付款</button>
 <button id="queryMonthtypeBtn">⭕ 查詢本月分類</button>
+<button id="queryMonthstoreBtn">⭕ 查詢本月店家</button>
 
 <div id="queryResult"></div>
 
@@ -335,6 +336,7 @@
   document.getElementById("queryMonthBtn").addEventListener("click", () => sendQuery("本月"));  
   document.getElementById("queryMonthtypeBtn").addEventListener("click", () => sendQuery("本月分類"));
   document.getElementById("queryMonthPayBtn").addEventListener("click", () => sendQuery("本月付款"));
+  document.getElementById("queryMonthstoreBtn").addEventListener("click", () => sendQuery("本月店家"));
 
   async function sendQuery(command){
     const body = { type: "query", command: command };
@@ -371,21 +373,38 @@
     }
 
     // 👉 本月付款
-if (command === "本月付款" && json.payments) {
-  html += `<div style="border:2px solid #2196F3; padding:10px; margin-top:15px; border-radius:8px; background:#f0f8ff;">`;
-  html += `<h4 style="margin:0 0 10px 0;">💳 本月付款統計</h4>`;
-  html += `<table><tr><th>付款方式</th><th>金額</th><th>占比</th></tr>`;
+    if (command === "本月付款" && json.payments) {
+      html += `<div style="border:2px solid #2196F3; padding:10px; margin-top:15px; border-radius:8px; background:#f0f8ff;">`;
+      html += `<h4 style="margin:0 0 10px 0;">💳 本月付款統計</h4>`;
+      html += `<table><tr><th>付款方式</th><th>金額</th><th>占比</th></tr>`;
+    
+      for (const [pay, amt] of Object.entries(json.payments)) {
+        const percent = ((amt / json.total) * 100).toFixed(1);
+        html += `<tr><td>${pay}</td><td>${Number(amt).toLocaleString()}</td><td>${percent}%</td></tr>`;
+      }
+    
+      html += `</table></div>`;
+      html += `<canvas id="payChart" width="300" height="300" style="margin-top:20px;"></canvas>`;
+      const paymentCount = Object.keys(json.payments).length;
+      html += `<div class="total">📌 本月總額：${Number(json.total || 0).toLocaleString()} 元（共 ${paymentCount} 種付款方式）</div>`;
+    }
 
-  for (const [pay, amt] of Object.entries(json.payments)) {
-    const percent = ((amt / json.total) * 100).toFixed(1);
-    html += `<tr><td>${pay}</td><td>${Number(amt).toLocaleString()}</td><td>${percent}%</td></tr>`;
-  }
-
-  html += `</table></div>`;
-  html += `<canvas id="payChart" width="300" height="300" style="margin-top:20px;"></canvas>`;
-  const paymentCount = Object.keys(json.payments).length;
-  html += `<div class="total">📌 本月總額：${Number(json.total || 0).toLocaleString()} 元（共 ${paymentCount} 種付款方式）</div>`;
-}
+    // 👉 本月店家
+    if (command === "本月店家" && json.stores) {
+      html += `<div style="border:2px solid #2196F3; padding:10px; margin-top:15px; border-radius:8px; background:#f0f8ff;">`;
+      html += `<h4 style="margin:0 0 10px 0;">💳 本月店家統計</h4>`;
+      html += `<table><tr><th>店家方式</th><th>金額</th><th>占比</th></tr>`;
+    
+      for (const [pay, amt] of Object.entries(json.stores)) {
+        const percent = ((amt / json.total) * 100).toFixed(1);
+        html += `<tr><td>${pay}</td><td>${Number(amt).toLocaleString()}</td><td>${percent}%</td></tr>`;
+      }
+    
+      html += `</table></div>`;
+      html += `<canvas id="storeChart" width="300" height="300" style="margin-top:20px;"></canvas>`;
+      const storeCount = Object.keys(json.stores).length;
+      html += `<div class="total">📌 本月總額：${Number(json.total || 0).toLocaleString()} 元（共 ${storeCount} 種店家方式）</div>`;
+    }
 
 document.getElementById("queryResult").innerHTML = html;
 
@@ -551,6 +570,20 @@ if (command === "本月付款" && json.payments) {
       });
     }
 
+    if (command === "本月店家" && json.stores) {
+      const ctx = document.getElementById('storeChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: Object.keys(json.stores),
+          datasets: [{
+            data: Object.values(json.stoes),
+            backgroundColor: ['#FF9800','#2196F3','#4CAF50','#9C27B0','#00BCD4','#FF6384'],
+          }]
+        }
+      });
+    }
+
     if (command === "本月" && json.categories) {
       const ctx = document.getElementById('typeChart').getContext('2d');
       new Chart(ctx, {
@@ -643,6 +676,7 @@ if (command === "本月付款" && json.payments) {
   </script>
 </body>
 </html>
+
 
 
 
