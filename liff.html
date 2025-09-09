@@ -316,16 +316,16 @@
  <!-- 查詢區塊 -->
 <h3>非看不可</h3>
 <button id="queryMonthBtn">📊 查詢本月</button>
-<button id="queryMonthtypeBtn">⭕ 查詢本月分類</button>
 <button id="queryMonthPayBtn">💳 查詢本月付款</button>
+<button id="queryMonthtypeBtn">⭕ 查詢本月分類</button>
 
 <div id="queryResult"></div>
 
 <!-- 查詢功能 -->
 <script>
-  document.getElementById("queryMonthBtn").addEventListener("click", () => sendQuery("本月"));
-  document.getElementById("queryMonthPayBtn").addEventListener("click", () => sendQuery("本月付款"));
+  document.getElementById("queryMonthBtn").addEventListener("click", () => sendQuery("本月"));  
   document.getElementById("queryMonthtypeBtn").addEventListener("click", () => sendQuery("本月分類"));
+  document.getElementById("queryMonthPayBtn").addEventListener("click", () => sendQuery("本月付款"));
 
   async function sendQuery(command){
     const body = { type: "query", command: command };
@@ -634,11 +634,3 @@ if (command === "本月付款" && json.payments) {
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
