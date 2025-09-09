@@ -219,7 +219,7 @@
 </head>
 <body>
 
-  <h2 id="title">非記不可.<script src="version.js"></script></h2>
+  <h2 id="title">非記不可.[<span id="version"></span>]</h2>
 
   <!-- 登錄表單 -->
   <form id="expenseForm">
@@ -569,14 +569,9 @@ if (command === "本月付款" && json.payments) {
 
 
   <!-- LIFF 初始化 + 登錄送出 -->
-  <script>
-    - name: Get workflow run count
-    run: |
-    COUNT=$(gh api repos/${{ github.repository }}/actions/runs --jq '.total_count')
-    echo "const VERSION = 'V12-${COUNT}';" > version.js
-    
-    const LIFF_ID = "2007975722-rVQMPxKV";  // 換成你的 LIFF ID
-    <!--const VERSION = "V12";       // 固定版次+ -->
+  <script>  
+    const LIFF_ID = "2007975722-rVQMPxKV";   // 換成你的 LIFF ID
+    const VERSION = "V12";                   // 固定版次
     const API_URL = "https://script.google.com/macros/s/AKfycbwOCXF8E8aKJ8T_fBSBDonf5fv8vTAI5Hvi3IKKniL8rjNxqjx4ih9DIwasAy7IjWkT/exec";  // 換成你的 GAS PATH
 
     document.getElementById("version").textContent = VERSION;
@@ -648,6 +643,7 @@ if (command === "本月付款" && json.payments) {
   </script>
 </body>
 </html>
+
 
 
 
