@@ -395,9 +395,9 @@
       html += `<h4 style="margin:0 0 10px 0;">📋 本月店家統計</h4>`;
       html += `<table><tr><th>店家方式</th><th>金額</th><th>占比</th></tr>`;
     
-      for (const [pay, amt] of Object.entries(json.stores)) {
+      for (const [store, amt] of Object.entries(json.stores)) {
         const percent = ((amt / json.total) * 100).toFixed(1);
-        html += `<tr><td>${pay}</td><td>${Number(amt).toLocaleString()}</td><td>${percent}%</td></tr>`;
+        html += `<tr><td>${store}</td><td>${Number(amt).toLocaleString()}</td><td>${percent}%</td></tr>`;
       }
     
       html += `</table></div>`;
@@ -406,31 +406,33 @@
       html += `<div class="total">📌 本月總額：${Number(json.total || 0).toLocaleString()} 元（共 ${storeCount} 種店家方式）</div>`;
     }
 
-document.getElementById("queryResult").innerHTML = html;
-
-// 👉 畫付款圓餅圖
-if (command === "本月付款" && json.payments) {
-  const ctx = document.getElementById("payChart").getContext("2d");
-  new Chart(ctx, {
-    type: "pie",
-    data: {
-      labels: Object.keys(json.payments),
-      datasets: [{
-        data: Object.values(json.payments),
-        backgroundColor: [
-          "#4CAF50", "#2196F3", "#FF9800", "#E91E63", "#9C27B0",
-          "#00BCD4", "#8BC34A", "#FFC107", "#FF5722", "#795548"
-        ]
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { position: "bottom" }
-      }
+    // 將結果寫入網頁
+    document.getElementById("queryResult").innerHTML = html;
+    
+    // 再去畫圓餅圖 (一定要放在 innerHTML 之後)
+    // 👉 畫付款圓餅圖 
+    if (command === "本月付款" && json.payments) {
+      const ctx = document.getElementById("payChart").getContext("2d");
+      new Chart(ctx, {
+        type: "pie",
+        data: {
+          labels: Object.keys(json.payments),
+          datasets: [{
+            data: Object.values(json.payments),
+            backgroundColor: [
+              "#4CAF50", "#2196F3", "#FF9800", "#E91E63", "#9C27B0",
+              "#00BCD4", "#8BC34A", "#FFC107", "#FF5722", "#795548"
+            ]
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { position: "bottom" }
+          }
+        }
+      });
     }
-  });
-}
 
     // 👉 本月明細
     if (command === "本月" && json.rows && json.rows.length > 0) {
@@ -577,7 +579,7 @@ if (command === "本月付款" && json.payments) {
         data: {
           labels: Object.keys(json.stores),
           datasets: [{
-            data: Object.values(json.stoes),
+            data: Object.values(json.stores),
             backgroundColor: ['#FF9800','#2196F3','#4CAF50','#9C27B0','#00BCD4','#FF6384'],
           }]
         }
@@ -676,3 +678,4 @@ if (command === "本月付款" && json.payments) {
   </script>
 </body>
 </html>
+
