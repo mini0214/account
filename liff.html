@@ -391,20 +391,32 @@
 
     // 👉 本月店家
     if (command === "本月店家" && json.stores) {
-      html += `<div style="border:2px solid #2196F3; padding:10px; margin-top:15px; border-radius:8px; background:#f0f8ff;">`;
-      html += `<h4 style="margin:0 0 10px 0;">📋 本月店家統計</h4>`;
-      html += `<table><tr><th>店家方式</th><th>金額</th><th>占比</th></tr>`;
-    
-      for (const [pay, amt] of Object.entries(json.stores)) {
-        const percent = ((amt / json.total) * 100).toFixed(1);
-        html += `<tr><td>${pay}</td><td>${Number(amt).toLocaleString()}</td><td>${percent}%</td></tr>`;
+      if (window.storeChart) {
+          window.storeChart.destroy();
+        }
+      
+        const ctx = document.getElementById('storeChart').getContext('2d');
+        window.storeChart = new Chart(ctx, {
+          type: 'pie',
+          data: {
+            labels: Object.keys(json.stores),
+            datasets: [{
+              data: Object.values(json.stores),  // ✅ 改成 stores
+              backgroundColor: [
+                '#FF9800','#2196F3','#4CAF50','#9C27B0','#00BCD4','#FF6384'
+              ],
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {
+                position: 'bottom'
+              }
+            }
+          }
+        });
       }
-    
-      html += `</table></div>`;
-      html += `<canvas id="storeChart" width="300" height="300" style="margin-top:20px;"></canvas>`;
-      const storeCount = Object.keys(json.stores).length;
-      html += `<div class="total">📌 本月總額：${Number(json.total || 0).toLocaleString()} 元（共 ${storeCount} 種店家方式）</div>`;
-    }
 
 document.getElementById("queryResult").innerHTML = html;
 
@@ -676,6 +688,7 @@ if (command === "本月付款" && json.payments) {
   </script>
 </body>
 </html>
+
 
 
 
