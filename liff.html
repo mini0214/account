@@ -565,34 +565,6 @@
         });
       }
 
-    if (command === "本月付款" && json.payments) {
-      const ctx = document.getElementById('payChart').getContext('2d');
-      new Chart(ctx, {
-        type: 'pie',
-        data: {
-          labels: Object.keys(json.payments),
-          datasets: [{
-            data: Object.values(json.payments),
-            backgroundColor: ['#FF9800','#2196F3','#4CAF50','#9C27B0','#00BCD4','#FF6384'],
-          }]
-        }
-      });
-    }
-
-    if (command === "本月店家" && json.stores) {
-      const ctx = document.getElementById('storeChart').getContext('2d');
-      new Chart(ctx, {
-        type: 'pie',
-        data: {
-          labels: Object.keys(json.stores),
-          datasets: [{
-            data: Object.values(json.stores),
-            backgroundColor: ['#FF9800','#2196F3','#4CAF50','#9C27B0','#00BCD4','#FF6384'],
-          }]
-        }
-      });
-    }
-
     // 👉 本月日期統計圖表
     if (command === "本月" && json.dates) {
       const ctx = document.getElementById('typeChart').getContext('2d');
@@ -697,6 +669,7 @@
   </script>
 </body>
 </html>
+
 
 
 
