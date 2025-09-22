@@ -181,8 +181,8 @@ function renderResult(command, json) {
     html += `</table>`;
   
     // ✅ 總額 & 筆數同樣用 rowsForDisplay
-    const totalAmount = rowsForTotal.reduce((sum, r) => sum + Number(r[5] || 0), 0);
-    html += `<div class="total">📌 總額：${totalAmount.toLocaleString()} 元（共 ${rowsForTotal.length} 筆）</div>`;
+    const totalAmount = rowsForDisplay.reduce((sum, r) => sum + Number(r[5] || 0), 0);
+    html += `<div class="total">📌 總額：${totalAmount.toLocaleString()} 元（共 ${rowsForDisplay.length} 筆）</div>`;
 
     // 長條圖資料：金額總和 + 幣別最大值
     const dateSum = {};
@@ -439,4 +439,5 @@ chartInstance = new Chart(ctx, {
 
 </body>
 </html>
+
 
