@@ -162,7 +162,7 @@ function renderResult(command, json) {
               </tr>`;
 
     // ✅ 表格資料只輸出 rowsForDisplay
-    json.rows.forEach(r => {
+    rowsForDisplay.forEach(r => {
       const dateStr = r[4] ? new Date(r[4]).toLocaleDateString("zh-TW") : "";
       html += `<tr>
                 <td>${r[3]}</td>
@@ -189,7 +189,7 @@ function renderResult(command, json) {
     // 長條圖資料：金額總和 + 幣別最大值
     const dateSum = {};
     const maxCurrencyByDate = {};
-    json.rows.forEach(r => {
+    rowsForDisplay.forEach(r => {
       const d = new Date(r[4]).toLocaleDateString("zh-TW");
       const amount = Number(r[5]);
       const currency = Number(r[13]);
@@ -441,6 +441,7 @@ chartInstance = new Chart(ctx, {
 
 </body>
 </html>
+
 
 
 
