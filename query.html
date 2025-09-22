@@ -148,6 +148,7 @@ function renderResult(command, json) {
     html += `<h5>📊 選擇查詢明細;標題按下即可排序</h5>`;
     html += `<table id="dataTable">
               <tr>
+                <th>記帳者</th>
                 <th>日期</th>
                 <th>店家</th>
                 <th class="numeric">收入</th>
@@ -164,6 +165,7 @@ function renderResult(command, json) {
     json.rows.forEach(r => {
       const dateStr = r[4] ? new Date(r[4]).toLocaleDateString("zh-TW") : "";
       html += `<tr>
+                <td>${r[3]}</td>
                 <td>${dateStr}</td>
                 <td>${r[8]}</td>
                 <td class="numeric">${Number(r[11]).toLocaleString()}</td>
@@ -439,5 +441,6 @@ chartInstance = new Chart(ctx, {
 
 </body>
 </html>
+
 
 
