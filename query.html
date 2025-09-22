@@ -50,12 +50,24 @@ const VERSION = "V16";
 const API_URL = "https://script.google.com/macros/s/AKfycbxsmFrG8jgiYM9Y8nlSJQmhEOw4T9YUcr-NIxbJmyQNBg1FWO7saoJyxTxkr-ehWXY/exec"; // 改成你的GAS網址
 
 let chartInstance = null;
+let currentUser = null;   // ✅ 先定義變數，不要一開始就用 json 登入者的資料
+  
 document.getElementById("version").textContent = VERSION;
 
 // 初始化 LIFF
 async function main() {
   await liff.init({ liffId: LIFF_ID });
   if (!liff.isLoggedIn()) liff.login();
+
+  // 這裡也可以從 LINE 帳號自動抓名稱 登入者的資料
+  try {
+    const profile = await liff.getProfile();
+    currentUser = profile.displayName;
+    console.log("登入使用者:", currentUser);
+  } catch (e) {
+    console.warn("抓不到 LINE 名稱，會改用資料表第一筆:", e);
+  }
+  
   setDefaultDateRange();
 }
 main();
@@ -116,7 +128,23 @@ async function sendQuery(command) {
 function renderResult(command, json) {
   let html = "";
 
+  const adminUser = "Betty Yi"; // ✅ 管理者帳號
+  
+  // ✅ 如果 currentUser 還沒定義，就用資料表第一筆 登入者的資料
+  if (!currentUser && json.rows && json.rows.length > 0) {
+    currentUser = json.rows[0][3];  // 第 4 欄是 display_name
+  }
+
+  // ✅ 統一過濾：管理者看到全部，其它人只看自己
+  let filteredRows = json.rows || [];
+  if (currentUser && currentUser !== adminUser) {
+    filteredRows = filteredRows.filter(r => r[3] === currentUser);
+  }
+  
   if (command === "明細" && json.rows) {
+    // 先依登入者過濾
+    const filteredRows = json.rows.filter(r => r[3] === currentUser); // r[3] = display_name
+    
     html += `<h5>📊 選擇查詢明細;標題按下即可排序</h5>`;
     html += `<table id="dataTable">
               <tr>
@@ -149,7 +177,11 @@ function renderResult(command, json) {
       </tr>`;
     });
     html += `</table>`;
-    html += `<div class="total">📌 總額：${Number(json.total||0).toLocaleString()} 元（共 ${json.rows.length} 筆）</div>`;
+    // ✅ 如果是管理員，用所有資料算；否則用 filteredRows
+    const rowsForTotal = (currentUser === adminUser) ? json.rows : filteredRows;
+    // ✅ 用 filteredRows 計算總額
+    const totalAmount = rowsForTotal.reduce((sum, r) => sum + Number(r[5] || 0), 0);
+    html += `<div class="total">📌 總額：${totalAmount.toLocaleString()} 元（共 ${rowsForTotal.length} 筆）</div>`;
 
     // 長條圖資料：金額總和 + 幣別最大值
     const dateSum = {};
@@ -174,17 +206,29 @@ function renderResult(command, json) {
 
   // 分類、付款、店家
   const sections = [
-    { cmd: "分類", data: json.categories, title: "⭕ 選擇分類統計;標題按下即可排序" },
-    { cmd: "付款", data: json.payments, title: "💳 選擇付款統計;標題按下即可排序" },
-    { cmd: "店家", data: json.stores, title: "📋 選擇店家統計;標題按下即可排序" }
+    { cmd: "分類", key: 6, title: "⭕ 選擇分類統計;標題按下即可排序" },
+    { cmd: "付款", key: 7, title: "💳 選擇付款統計;標題按下即可排序" },
+    { cmd: "店家", key: 8, title: "📋 選擇店家統計;標題按下即可排序" }
   ];
 
   sections.forEach(sec => {
-    if (command === sec.cmd && sec.data) {
-      const labels = Object.keys(sec.data);
-      const values = Object.values(sec.data);
+    if (command === sec.cmd) {
+      
+      // ✅ 管理員用全部資料，一般使用者才過濾
+      const rowsForCalc = (currentUser === adminUser)
+        ? json.rows
+        : (json.rows ? json.rows.filter(r => r[3] === currentUser) : []);
+      
+      // 依 filteredRows 計算統計
+      const counts = {};
+      filteredRows.forEach(r => {
+        const value = r[sec.key] || "未知";
+        counts[value] = (counts[value] || 0) + Number(r[5] || 0); // 金額在 r[5]
+      });
+  
+      const labels = Object.keys(counts);
+      const values = Object.values(counts);
       const total = values.reduce((a,b)=>a+b,0);
-      const count = values.length;
 
       html += `<h5>${sec.title}</h5>`;
       html += `<table id="dataTable">
@@ -202,7 +246,9 @@ function renderResult(command, json) {
                  </tr>`;
       });
       html += `</table>`;
-      html += `<div class="total">📌 總額：${total.toLocaleString()} 元（共 ${count} 筆）</div>`;
+      html += `<div class="total">📌 總額：${total.toLocaleString()} 元（共 ${labels.length} 筆）</div>`;
+
+      // Pie Chart
       renderChart("pie", labels, values);
     }
   });
