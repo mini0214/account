@@ -142,8 +142,8 @@ function renderResult(command, json) {
   }
   
   if (command === "明細" && json.rows) {
-    // 先依登入者過濾
-    const filteredRows = json.rows.filter(r => r[3] === currentUser); // r[3] = display_name
+    // ✅ 這裡不要重新定義 filteredRows，直接用前面已經處理好的
+    const rowsForDisplay = (currentUser === adminUser) ? json.rows : filteredRows;
     
     html += `<h5>📊 選擇查詢明細;標題按下即可排序</h5>`;
     html += `<table id="dataTable">
@@ -159,6 +159,8 @@ function renderResult(command, json) {
                 <th>附註</th>
                 <th>備註</th>
               </tr>`;
+
+    // ✅ 表格資料只輸出 rowsForDisplay
     json.rows.forEach(r => {
       const dateStr = r[4] ? new Date(r[4]).toLocaleDateString("zh-TW") : "";
       html += `<tr>
@@ -177,9 +179,8 @@ function renderResult(command, json) {
       </tr>`;
     });
     html += `</table>`;
-    // ✅ 如果是管理員，用所有資料算；否則用 filteredRows
-    const rowsForTotal = (currentUser === adminUser) ? json.rows : filteredRows;
-    // ✅ 用 filteredRows 計算總額
+  
+    // ✅ 總額 & 筆數同樣用 rowsForDisplay
     const totalAmount = rowsForTotal.reduce((sum, r) => sum + Number(r[5] || 0), 0);
     html += `<div class="total">📌 總額：${totalAmount.toLocaleString()} 元（共 ${rowsForTotal.length} 筆）</div>`;
 
@@ -438,3 +439,4 @@ chartInstance = new Chart(ctx, {
 
 </body>
 </html>
+
