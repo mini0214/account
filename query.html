@@ -52,10 +52,36 @@
 <canvas id="chartCanvas"></canvas>
 
 <script>
-const LIFF_ID = "2007975722-zEq1ONrg";
-const VERSION = "V17";
-const API_URL = "https://script.google.com/macros/s/AKfycbyimh2MY04N2IB_Wo3X1301uRTRd57yjH42IubE_aSM0OgRlVaI0M997AlQXY0R4Rqq/exec"; // 改成你的GAS網址
+//const LIFF_ID = "2008096451-jPJ50MOY"; // 換成你的 LIFF ID
+//const VERSION = "V17_#43";             // 固定版次
+const API_URL = "https://script.google.com/macros/s/AKfycbyPI1RSJwAqB8nALtS4nW4xM_BmKHnFZ577Dbpe5ZtN07AVEUK4_UPqaa7-kTLmX60W/exec";  // 換成你的 GAS PATH
 
+let LIFF_ID = "default";   // 先放預設或空字串,從 D12 帶入 query
+let VERSION = "V";      // ✅ 預設顯示版本號，不要等API,從 D10 帶入 版次
+
+document.getElementById("version").textContent = VERSION;
+
+async function loadConfig() { 
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify({ type: "config" })
+    });
+    const cfg = await res.json();
+
+    if (cfg.ok) {
+      LIFF_ID = cfg.D12;    // 取設定表 D12 query
+      VERSION = cfg.D10;    // 取設定表 D10 版次
+      document.getElementById("version").textContent = VERSION; // ✅ API回來再更新
+      console.log("設定完成:", { LIFF_ID, VERSION });
+    } else {
+      console.error("讀取設定失敗:", cfg.error);
+    }
+  } catch (err) {
+    console.error("載入設定發生錯誤:", err);
+  }
+}
+ 
 let chartInstance = null;
 let currentUser = null;   // ✅ 先定義變數，不要一開始就用 json 登入者的資料
   
@@ -63,6 +89,9 @@ document.getElementById("version").textContent = VERSION;
 
 // 初始化 LIFF
 async function main() {
+  await loadConfig();   // ✅ 先等設定抓完
+  document.getElementById("version").textContent = VERSION;
+  
   await liff.init({ liffId: LIFF_ID });
   if (!liff.isLoggedIn()) liff.login();
 
@@ -473,6 +502,8 @@ chartInstance = new Chart(ctx, {
     });
   }
 }
+// ✅ 呼叫一次
+loadConfig();
 </script>
 
 </body>
