@@ -54,8 +54,6 @@
       display: flex;
       align-items: center;
       margin: 20px 0;
-      display: inline-block; /* ✅ 換成 inline-block 比較不會被擠下去 */
-      margin-top: 25px;
       white-space: nowrap;   /* ✅ 關鍵：不允許自動換行 */
     }
   
@@ -214,7 +212,45 @@
       transform: scale(0.97);
       box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
     }
-
+    
+    <!--storelist欄位-->
+    .input-wrapper {
+      position: relative;
+      flex: 1;
+    }
+    
+    #store {
+      width: 100%;
+      padding: 25px;
+      font-size: 50px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+    
+    #suggestions {
+      position: absolute;
+      top: 100%;      /* 直接在 input 底下 */
+      left: 0;
+      right: 0;
+      background: white;
+      border: 1px solid #ccc;
+      max-height: 200px;
+      overflow-y: auto;
+      display: none;
+      z-index: 1000;
+    }
+    
+    #suggestions div {
+      padding: 20px;       /* 放大一點 */
+      font-size: 50px;     /* 放大文字 */
+      cursor: pointer;
+    }
+    
+    #suggestions div:hover {
+      background-color: #eee;
+    }
+    
   </style>
 </head>
 <body>
@@ -229,9 +265,12 @@
       <input type="date" id="date" placeholder="選填">
     </div>    
   
-    <div class="form-row">
+    <div class="form-row store-row">
       <label for="store">店家：</label>
-      <input type="text" id="store" placeholder="選填">
+      <div class="input-wrapper">
+        <input type="text" id="store" placeholder="選填;可邊輸入邊選擇店家">
+        <div id="suggestions"></div>
+      </div>
     </div>
 
     <div style="display: flex; align-items: center; gap: 10px; margin-top: 10px;">
@@ -242,7 +281,7 @@
       <input type="number" id="payout" placeholder="請輸入支出金額" style="width:550px; color:red; display:inline-block;" step="0.01">
     </div>   
     
-    <script>
+    <script>      
       const btnIncome = document.getElementById("btnIncome");
       const btnPayout = document.getElementById("btnPayout");
       const income = document.getElementById("income");
@@ -329,7 +368,7 @@
   <script>  
     //const LIFF_ID = "2008096451-3DobjEw8";   // 換成你的 LIFF ID test
     //const VERSION = "V17_#43";                   // 固定版次
-    const API_URL = "https://script.google.com/macros/s/AKfycbyPI1RSJwAqB8nALtS4nW4xM_BmKHnFZ577Dbpe5ZtN07AVEUK4_UPqaa7-kTLmX60W/exec";  // 換成你的 GAS PATH
+    const API_URL = "https://script.google.com/macros/s/AKfycbzmxChFNEVFuMSNd94moooMFgZZYw69BTYDDBmm_JVuiHJtr0pbxbmI0njEtLT46KD4/exec";  // 換成你的 GAS PATH
 
     let LIFF_ID = "default";   // 先放預設或空字串,從 D11 帶入 append
     let VERSION = "V";         // ✅ 預設顯示版本號，不要等API,從 D10 帶入 版次
@@ -356,7 +395,53 @@
         console.error("載入設定發生錯誤:", err);
       }
     }
-    
+
+    // 店家清單
+    let storeList = [];
+    const input = document.getElementById("store");
+    const sugg = document.getElementById("suggestions");
+  
+    async function loadStoreList() {
+      try {
+        console.log("呼叫店家 API:", API_URL);
+        const res = await fetch(`${API_URL}?type=query&command=店家`);
+        const data = await res.json();
+        console.log("GAS 回傳:", data);
+  
+        if (data.ok && data.storeList) {
+          storeList = data.storeList;
+          console.log("載入店家清單成功:", storeList);
+        } else {
+          console.error("GAS 回傳格式不正確:", data);
+        }
+      } catch (err) {
+        console.error("載入店家清單失敗:", err);
+      }
+    }
+  
+    // 即時提示
+    input.addEventListener("input", () => {
+      const val = input.value.toLowerCase();
+      sugg.innerHTML = "";
+      if (!val) { sugg.style.display = "none"; return; }
+  
+      const matches = storeList.filter(s => s.toLowerCase().includes(val));
+      if (matches.length === 0) { sugg.style.display = "none"; return; }
+  
+      matches.forEach(m => {
+        const div = document.createElement("div");
+        div.textContent = m;
+        div.onclick = () => { input.value = m; sugg.style.display = "none"; };
+        sugg.appendChild(div);
+      });
+  
+      sugg.style.display = "block";
+      const rect = input.getBoundingClientRect();
+      sugg.style.width = rect.width + "px";
+      sugg.style.top = (rect.bottom + window.scrollY) + "px";
+      sugg.style.left = (rect.left + window.scrollX) + "px";
+    });
+      
     document.getElementById("version").textContent = VERSION;
 
     async function main() {
@@ -368,6 +453,9 @@
 
       // 預設日期為今天
       document.getElementById("date").valueAsDate = new Date();
+          
+      // 🚀 等設定完成後再載入店家清單
+      await loadStoreList();
     }
     main();
 
