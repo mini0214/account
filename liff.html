@@ -311,6 +311,14 @@
         income.style.display = "none";
         income.value = "";
       });
+
+      // ✅ 這裡不要再重複宣告 payout
+      payout.addEventListener("input", () => {
+        const val = payout.value;
+        if (val.includes(".")) {
+          currency.value = "20"; // 有小數點 → 自動選澳幣
+        }
+      });
     </script>      
 
     <div class="form-block">
@@ -533,3 +541,4 @@
   </script>
 </body>
 </html>
+
