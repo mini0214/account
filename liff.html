@@ -18,12 +18,6 @@
       margin-bottom: 50px;
     }
 
-    h3 {
-      font-size: 50px;
-      text-align: center;
-      margin-bottom: 50px;
-    }
-
     label {
       font-size: 50px;
       font-weight: bold;
@@ -32,86 +26,23 @@
       white-space: nowrap;   /* ✅ 關鍵：不允許自動換行 */
     }
 
-    input {
+    input, select  {
       font-size: 50px;
       padding: 25px;
       width: 70%;
       margin-top: 5px;
       border-radius: 8px;
       border: 1px solid #ccc;
-    }
-
-    select {
-      font-size: 50px;
-      padding: 25px;
-      width: 70%;
-      margin-top: 5px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
+      box-sizing: border-box;
     }
     
-    .form-row {
+    .form-row, .form-block {
       display: flex;
       align-items: center;
       margin: 20px 0;
       white-space: nowrap;   /* ✅ 關鍵：不允許自動換行 */
-    }
+    }     
   
-    .form-row label {
-      font-size: 50px;
-      font-weight: bold;
-      margin-right: 20px;
-      white-space: nowrap;
-    }
-  
-    .form-row input {
-      font-size: 50px;
-      padding: 25px;
-      width: 70%;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-    }
-
-    .form-row select {
-      font-size: 50px;
-      padding: 25px;
-      width: 70%;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-    }
-
-    .form-block {
-      display: flex;
-      align-items: center;
-      margin: 20px 0;
-      display: inline-block; /* ✅ 換成 inline-block 比較不會被擠下去 */
-      margin-top: 25px;
-      white-space: nowrap;   /* ✅ 關鍵：不允許自動換行 */
-    }
-  
-    .form-block label {
-      font-size: 50px;
-      font-weight: bold;
-      margin-right: 20px;
-      white-space: nowrap;
-    }
-    
-    .form-block input {
-      font-size: 50px;
-      padding: 25px;
-      width: 70%;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-    }
-
-    .form-block select {
-      font-size: 50px;
-      padding: 25px;
-      width: 70%;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-    }
-    
     button {
       font-size: 50px;
       padding: 25px;
@@ -121,60 +52,12 @@
       border: none;
       width: 100%;
       margin-top: 25px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      cursor: pointer;
     }
-
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      margin-top: 25px;
-    }
-
-    th, td {
-      border: 1px solid #ddd;
-      padding: 8px;
-      text-align: center;
-      font-size: 14px;
-    }
-
-    th {
-      background-color: #f2f2f2;
-    }
-
-    .total {
-      font-size: 50px;
-      margin-top: 25px;
-      font-weight: bold;
-      color: #d9534f;
-    }
-
-    /* 查詢資料大小 ... */  
-    /* ✅ 強化選擇器，確保套用字體大小 */
-    #queryResult table {
-      border-collapse: collapse;
-      width: 100%;
-      margin-top: 15px;
-      font-size: 24px; /* 整張表格預設字體大小 */
-    }
-  
-    #queryResult table th,
-    #queryResult table td {
-      border: 1px solid #ddd;
-      padding: 20px;
-      text-align: center;
-      font-size: 30px !important; /* 強制覆蓋掉舊的 */
-    }
-  
-    #queryResult table th {
-      background-color: #f2f2f2;
-      font-weight: bold;
-    }
-  
-    .total {
-      margin-top: 10px;
-      font-size: 60px;
-      font-weight: bold;
-      color: #d9534f;
-    }
+    
+    button:hover { transform: scale(1.05); }
+    button:active { transform: scale(0.97); box-shadow: inset 0 2px 5px rgba(0,0,0,0.2); }
 
      .toggle-btn {
         padding: 8px 20px;
@@ -185,6 +68,7 @@
         opacity: 0.6;       /* 預設暗淡 */
         transition: opacity 0.2s, box-shadow 0.2s;
       }
+    
       #btnIncome { background: #000080; color: white; }
       #btnPayout { background: #f44336; color: white; }
     
@@ -192,26 +76,6 @@
         opacity: 1;         /* 選中變亮 */
         box-shadow: 0 0 6px rgba(0,0,0,0.3);
       }
-    
-    <!--按下感CSS微動畫-->
-    button {
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-    
-    button:hover {
-      transform: scale(1.05);
-    }
-    
-    button:active {
-      transform: scale(0.97);
-      box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
-    }
     
     <!--storelist欄位-->
     .input-wrapper {
@@ -250,7 +114,21 @@
     #suggestions div:hover {
       background-color: #eee;
     }
-    
+
+    .total {
+      margin-top: 10px;
+      font-size: 60px;
+      font-weight: bold;
+      color: #d9534f;
+    }
+
+    #loadingMsg {
+      display: none;
+      font-size: 40px;
+      color: red;
+      text-align: center;
+      margin-top: 20px;
+    }    
   </style>
 </head>
 <body>
@@ -380,7 +258,7 @@
   <script>  
     //const LIFF_ID = "2008096451-3DobjEw8";   // 換成你的 LIFF ID test
     //const VERSION = "V17_#43";                   // 固定版次
-    const API_URL = "https://script.google.com/macros/s/AKfycbzmxChFNEVFuMSNd94moooMFgZZYw69BTYDDBmm_JVuiHJtr0pbxbmI0njEtLT46KD4/exec";  // 換成你的 GAS PATH
+    const API_URL = "https://script.google.com/macros/s/AKfycbyVe5n4ojdn2oZS3HQmdMxGM6Xtbj5RHzUnjonrNBYXg-_cbImwQ6wZJxAj_s7DLfF7/exec";  // 換成你的 GAS PATH
 
     let LIFF_ID = "default";   // 先放預設或空字串,從 D11 帶入 append
     let VERSION = "V";         // ✅ 預設顯示版本號，不要等API,從 D10 帶入 版次
@@ -409,9 +287,10 @@
     }
 
     // 店家清單
-    let storeList = [];
+    let storeList = []; // [{store, type}]
     const input = document.getElementById("store");
     const sugg = document.getElementById("suggestions");
+    const typeSelect = document.getElementById("type");
   
     async function loadStoreList() {
       try {
@@ -420,8 +299,8 @@
         const data = await res.json();
         console.log("GAS 回傳:", data);
   
-        if (data.ok && data.storeList) {
-          storeList = data.storeList;
+        if (data.ok && Array.isArray(data.storeList)) {
+          storeList = data.storeList; // [{store, type}]
           console.log("載入店家清單成功:", storeList);
         } else {
           console.error("GAS 回傳格式不正確:", data);
@@ -431,19 +310,39 @@
       }
     }
   
-    // 即時提示
+    // 即時提示 + 自動帶入 type
     input.addEventListener("input", () => {
       const val = input.value.toLowerCase();
       sugg.innerHTML = "";
       if (!val) { sugg.style.display = "none"; return; }
-  
-      const matches = storeList.filter(s => s.toLowerCase().includes(val));
+      
+      // 篩選符合的店家
+      const matches = storeList.filter(s => s.store && s.store.toLowerCase().includes(val));
       if (matches.length === 0) { sugg.style.display = "none"; return; }
-  
+      
+      // 顯示建議
       matches.forEach(m => {
         const div = document.createElement("div");
-        div.textContent = m;
-        div.onclick = () => { input.value = m; sugg.style.display = "none"; };
+        div.textContent = m.store + (m.type ? `（${m.type}）` : "");
+        div.onclick = () => {
+          input.value = m.store;
+          sugg.style.display = "none";
+          
+          // 自動選中對應 type
+          if (m.type) {
+            typeSelect.value = m.type;
+            if (!typeSelect.value) {
+              // 若下拉選單沒有這個分類，就新增
+              const opt = document.createElement("option");
+              opt.value = m.type;
+              opt.textContent = m.type;
+              typeSelect.appendChild(opt);
+              typeSelect.value = m.type;
+            }
+          } else {
+            typeSelect.value = "";
+          }
+        };
         sugg.appendChild(div);
       });
   
@@ -457,7 +356,7 @@
     document.getElementById("version").textContent = VERSION;
 
     async function main() {
-      await loadConfig();   // ✅ 先等設定抓完
+      await loadConfig();   // 先載設定
       document.getElementById("version").textContent = VERSION;
       
       await liff.init({ liffId: LIFF_ID });
@@ -545,5 +444,3 @@
   </script>
 </body>
 </html>
-
-
