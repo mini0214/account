@@ -258,7 +258,7 @@
   <script>  
     //const LIFF_ID = "2008096451-3DobjEw8";   // 換成你的 LIFF ID test
     //const VERSION = "V17_#43";                   // 固定版次
-    const API_URL = "https://script.google.com/macros/s/AKfycbyVe5n4ojdn2oZS3HQmdMxGM6Xtbj5RHzUnjonrNBYXg-_cbImwQ6wZJxAj_s7DLfF7/exec";  // 換成你的 GAS PATH
+    const API_URL = "https://script.google.com/macros/s/AKfycbynbGfh8FeT44sN3wlHSBGMRyv2_jtx7__O8wUokwHJbr-gMjuRdHZgY0aynAV7jYWp/exec";  // 換成你的 GAS PATH
 
     let LIFF_ID = "default";   // 先放預設或空字串,從 D11 帶入 append
     let VERSION = "V";         // ✅ 預設顯示版本號，不要等API,從 D10 帶入 版次
@@ -375,7 +375,6 @@
       
       const submitBtn = document.getElementById("submitBtn");
       const loadingMsg = document.getElementById("loadingMsg");
-
       
       // 🔒 禁用按鈕 + 顯示訊息
       submitBtn.disabled = true;
@@ -427,6 +426,24 @@
         const result = await res.json();
         
         if (result.ok) {
+          // 🟦 先查詢總額
+          let thisTotal = 0;
+          let lastTotal = 0;
+          let changeText = "";
+        
+          try {
+            const user = encodeURIComponent(payload.displayName); // 或固定 "Betty Yi"
+            const totalRes = await fetch(`${API_URL}?type=query&command=總額&user=${user}`); //GAS Web Path
+            const totalData = await totalRes.json();
+            console.log("totalData:", totalData);
+          
+            thisTotal = totalData?.thisMonth?.total || "0";
+            lastTotal = totalData?.lastMonth?.total || "0";
+            changeText = totalData?.changeText || "";        
+          } catch (err) {
+            console.warn("查詢總額失敗：", err.message);
+          }
+          
           // ✅ 發送訊息到 LINE 聊天
             if (liff.isInClient()) {
               try {
@@ -435,14 +452,19 @@
                     type: "text",
                     text:
                       `非記不可.記帳成功！\n` +
-                      `📅 日期：${payload.inputDate}\n` +
+                      `👤 記帳者：${payload.displayName}\n` +
+                      `📆 日期：${payload.inputDate}\n` +
                       `📋 店家：${payload.store || " "}\n` +
                       `💰 收支：${payload.payout ? `-${payload.payout}` : payload.income}\n` +
                       `💰 幣別：${payload.currency}\n` +
                       `💰 金額：${payload.amount}\n` +
                       `💳 付款：${payload.payment}\n` +
                       `📂 分類：${payload.type}\n` +
-                      `📝 附註：${payload.note || " "}`
+                      `📝 附註：${payload.note || " "}\n\n` +
+                      `📆 本期總額：💰${thisTotal}\n` +
+                      `📆 上期總額：💰${lastTotal}\n` +
+                      `🧮 總額佔比：${changeText}`
+
                   }
                 ]);
             } catch (err) {
@@ -453,14 +475,18 @@
           // ✅ 同步顯示在畫面 alert
           alert(
                 `非記不可.記帳成功！\n` +
-                `📅 日期：${payload.inputDate}\n` +
+                `👤 記帳者：${payload.displayName}\n` +
+                `📆 日期：${payload.inputDate}\n` +
                 `📋 店家：${payload.store || " "}\n` +
                 `💰 收支：${payload.payout ? `-${payload.payout}` : payload.income}\n` +
                 `💰 幣別：${payload.currency}\n` +
                 `💰 金額：${payload.amount}\n` +
                 `💳 付款：${payload.payment}\n` +
                 `📂 分類：${payload.type}\n` +
-                `📝 附註：${payload.note || " "}`
+                `📝 附註：${payload.note || " "}\n\n` +
+                `📆 本期總額：💰${thisTotal}\n` +
+                `📆 上期總額：💰${lastTotal}\n` +
+                `🧮 總額佔比：${changeText}`
             );
         } 
         
