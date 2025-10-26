@@ -12,7 +12,7 @@
     .date-inputs { font-size: 50px; text-align: center; margin-bottom: 20px;  }
     .date-inputs input { font-size: 50px; margin: 0 10px;  padding: 5px; }
     h4 { font-size: 36px; text-align: center; margin-bottom: 20px; }
-    button { font-size: 40px; margin: 5px; padding: 10px 20px; border-radius: 8px; cursor: pointer; background-color: #4CAF50; color: white; }
+    button { font-size: 40px; margin: 5px; padding: 10px 20px; border-radius: 8px; cursor: pointer; background-color: #0056b3; color: white; }
     #queryResult { margin-top: 1px; }
     h5 { font-size: 28px; margin: 0; padding: 0; }
     table { font-size: 28px; border-collapse: collapse; width: 100%; margin-top: 15px; }
@@ -25,7 +25,7 @@
 </head>
 <body>
 
-<h3>非看不可.[<span id="version"></span>]</h3>
+<h3>🔍非<span style="color: blue;">看</span>不可.[<span id="version"></span>]</h3>
 
 <div class="date-inputs">
   開始日期：<input type="date" id="startDate"><br>
@@ -64,7 +64,7 @@
 // FALLBACK_GAS_SETTINGS_URL 是「啟動保底設定URL」。第一次啟動時用它讀取設定表。所以未來重新部署 GAS，不需修改此行，除非設定表失效。
 // 若設定表內有 D5（SETTINGS_URL），會自動更新成 D5。
 // 暫時用,後續會自動轉換成設定檔內的固定 D5。這行只是啟動用的臨時鑰匙，真的開門後會自動換成設定表的正式鑰匙。
-let FALLBACK_GAS_SETTINGS_URL = "https://script.google.com/macros/s/AKfycbwk0q0U7iSfqX08_A_jhN0e5RPGsJjZ87n7KBK3qvuypRzYwYP2F5yYBPxoja6EJFIg/exec";
+let FALLBACK_GAS_SETTINGS_URL = "https://script.google.com/macros/s/AKfycbz3mlLlX4NId1J9th8ADMfLfswG5Z6XalWDL9cu68W60yDj3XSAdQ4NLwZozXwDSTe4cQ/exec";
      
 let API_URL = "";    // ✅ 從設定檔 D6
 let VERSION = "V";   // ✅ 從設定檔 D10
