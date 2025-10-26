@@ -64,11 +64,10 @@
 // FALLBACK_GAS_SETTINGS_URL 是「啟動保底設定URL」。第一次啟動時用它讀取設定表。所以未來重新部署 GAS，不需修改此行，除非設定表失效。
 // 若設定表內有 D5（SETTINGS_URL），會自動更新成 D5。
 // 暫時用,後續會自動轉換成設定檔內的固定 D5。這行只是啟動用的臨時鑰匙，真的開門後會自動換成設定表的正式鑰匙。
-let FALLBACK_GAS_SETTINGS_URL = "https://script.google.com/macros/s/AKfycbwjK8tbxy6xHOIcYsZ0eCBzfFByNrLCXtSsKN2TcsvDZfWygJ_2Q38MHi-Wc1mG3s_S/exec";
+let FALLBACK_GAS_SETTINGS_URL = "https://script.google.com/macros/s/AKfycbz3mlLlX4NId1J9th8ADMfLfswG5Z6XalWDL9cu68W60yDj3XSAdQ4NLwZozXwDSTe4cQ/exec";
      
 let API_URL = "";    // ✅ 從設定檔 D6
 let VERSION = "V";   // ✅ 從設定檔 D10
-let LIFF_IDa = "";   // ✅ 從設定檔 D11
 let LIFF_IDq = "";   // ✅ 從設定檔 D12
 
 let currentUser = null; // ✅ 先定義變數，不要一開始就用 json 登入者的資料
@@ -112,7 +111,6 @@ async function initApp(){
     FALLBACK_GAS_SETTINGS_URL = (settings.SETTINGS_URL || FALLBACK_GAS_SETTINGS_URL).trim();// 自動轉換成設定檔內的固定 D5
     API_URL = (settings.API_URL || "").trim();
     VERSION = (settings.D10 || "V").trim();
-    //LIFF_IDa = (settings.D11 || "").trim();
     LIFF_IDq = (settings.D12 || "").trim();
     
     document.getElementById("version").textContent = VERSION;
@@ -547,4 +545,3 @@ initApp();
 </script>
 </body>
 </html>
-
