@@ -4,7 +4,15 @@
   <meta charset="utf-8">
   <title>零用金支出帳簿</title>
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Excel -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script> 
+  <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+  <!-- PDF -->
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
   
   <style>
     body { font-family: Arial, sans-serif; padding: 50px; }
@@ -12,7 +20,11 @@
     .date-inputs { font-size: 50px; text-align: center; margin-bottom: 20px;  }
     .date-inputs input { font-size: 50px; margin: 0 10px;  padding: 5px; }
     h4 { font-size: 36px; text-align: center; margin-bottom: 20px; }
-    button { font-size: 40px; margin: 5px; padding: 10px 20px; border-radius: 8px; cursor: pointer; background-color: #0056b3; color: white; }
+    button { font-size: 40px; margin: 5px; padding: 10px 20px; border-radius: 8px; cursor: pointer; background-color: #0056b3; color: white; }/* 藍色 */
+    .date-btn { font-size: 40px; margin: 5px; padding: 10px 20px; border-radius: 8px; cursor: pointer; background-color: #888; color: white; }/* 灰色 */
+    .date-btn:hover { background-color: #0056b3; } /* 按下藍色 */
+    .green-btn { font-size: 40px; margin: 5px; padding: 10px 20px; border-radius: 8px; cursor: pointer; background-color: #28a745; color: white; }/* 綠色 */
+    .green-btn:hover { background-color: #0056b3; } /* 按下藍色 */
     #queryResult { margin-top: 1px; }
     h5 { font-size: 28px; margin: 0; padding: 0; }
     table { font-size: 28px; border-collapse: collapse; width: 100%; margin-top: 15px; }
@@ -25,11 +37,15 @@
 </head>
 <body>
 
-<h3>🔍非<span style="color: blue;">看</span>不可.[<span id="version"></span>]</h3>
+<h3>🔍非<span style="color: blue;">看</span><span>/</span><span style="color: green;">匯</span>不可.[<span id="version"></span>]</h3>
 
 <div class="date-inputs">
   開始日期：<input type="date" id="startDate"><br>
-  結束日期：<input type="date" id="endDate">
+  結束日期：<input type="date" id="endDate"><br>
+  <button id="prevMonthBtn" class="date-btn">上月</button>
+  <button id="nextMonthBtn" class="date-btn">下月</button>
+  <button id="thisYearBtn" class="date-btn">整年</button>
+  <button id="lastYearBtn" class="date-btn">去年</button>
 </div>
 
 <h4>選擇您想要看的(直球對決)</h4>
@@ -48,8 +64,15 @@
   </div>
 
 <!-- 📊 查詢結果顯示區 -->  
-<div id="queryResult"></div>
+<div id="queryResult"></div> 
 <canvas id="chartCanvas"></canvas>
+  
+<!-- ✅ 匯出按鈕獨立區塊（固定位置） -->
+<div id="exportArea" style="text-align:center; margin-top:10px; display:none;">
+  <button id="exportCsvBtn" class="green-btn">📤 匯出CSV</button>
+  <button id="exportExcelBtn" class="green-btn">📤 匯出Excel</button>
+  <button id="exportPdfBtn" class="green-btn">📄 匯出PDF</button>
+</div>
 
 <script>
 //const LIFF_ID = "2008096451-jPJ50MOY"; // 換成你的 LIFF ID
@@ -69,6 +92,7 @@ let FALLBACK_GAS_SETTINGS_URL = "https://script.google.com/macros/s/AKfycbwjK8tb
 let API_URL = "";    // ✅ 從設定檔 D6
 let VERSION = "V";   // ✅ 從設定檔 D10
 let LIFF_IDq = "";   // ✅ 從設定檔 D12
+let htmlUrl = "";    // ✅ 從設定檔 D14
 
 let currentUser = null; // ✅ 先定義變數，不要一開始就用 json 登入者的資料
 let chartInstance = null;
@@ -112,11 +136,13 @@ async function initApp(){
     API_URL = (settings.API_URL || "").trim();
     VERSION = (settings.D10 || "V").trim();
     LIFF_IDq = (settings.D12 || "").trim();
+    htmlUrl = (settings.D14 || "").trim();
     
     document.getElementById("version").textContent = VERSION;
-    console.log("✅ 設定成功:", { FALLBACK_GAS_SETTINGS_URL, API_URL, LIFF_IDq, VERSION });
+    console.log("✅ 設定成功:", { FALLBACK_GAS_SETTINGS_URL, API_URL, LIFF_IDq, htmlUrl, VERSION });
     
     if (!LIFF_IDq) throw new Error("❌ LIFF ID 尚未設定，請確認設定表 D12");
+    if (!htmlUrl) throw new Error("❌ HTML Url 尚未設定，請確認設定表 D14");
     
     await liff.init({ liffId: LIFF_IDq });
     if (!liff.isLoggedIn()) liff.login();
@@ -159,7 +185,58 @@ function toInputDate(d) {
   const day = d.getDate().toString().padStart(2, "0");
   return `${d.getFullYear()}-${m}-${day}`;
 }
+  
+// 📅 日期切換功能
+const startInput = document.getElementById("startDate");
+const endInput = document.getElementById("endDate");
 
+function setDateRange(start, end) {
+  startInput.value = toInputDate(start);
+  endInput.value = toInputDate(end);
+}
+
+// 📅 上月
+document.getElementById("prevMonthBtn").addEventListener("click", () => {
+  const base = startInput.value ? new Date(startInput.value) : new Date();
+  const year = base.getFullYear();
+  const month = base.getMonth(); // 0~11
+
+  const start = new Date(year, month - 1, 1);
+  const end = new Date(year, month, 0);
+  setDateRange(start, end);
+});
+
+// 📅 下月
+document.getElementById("nextMonthBtn").addEventListener("click", () => {
+  const base = startInput.value ? new Date(startInput.value) : new Date();
+  const year = base.getFullYear();
+  const month = base.getMonth();
+
+  const start = new Date(year, month + 1, 1);
+  const end = new Date(year, month + 2, 0);
+  setDateRange(start, end);
+});
+
+// 📅 去年
+document.getElementById("lastYearBtn").addEventListener("click", () => {
+  const base = startInput.value ? new Date(startInput.value) : new Date();
+  const year = base.getFullYear() - 1;
+
+  const start = new Date(year, 0, 1);
+  const end = new Date(year, 11, 31);
+  setDateRange(start, end);
+});
+
+// 📅 今年
+document.getElementById("thisYearBtn").addEventListener("click", () => {
+  const base = startInput.value ? new Date(startInput.value) : new Date();
+  const year = base.getFullYear();
+
+  const start = new Date(year, 0, 1);
+  const end = new Date(year, 11, 31);
+  setDateRange(start, end);
+});
+  
 // 按鈕事件
 document.getElementById("queryMonthBtn").addEventListener("click", () => sendQuery("明細"));
 document.getElementById("queryMonthTypeBtn").addEventListener("click", () => sendQuery("分類"));
@@ -179,6 +256,9 @@ async function sendQuery(command) {
   
     // ✅ 查詢前清空舊的查詢結果
     document.getElementById("queryResult").innerHTML = "";
+
+    // ✅ 隱藏匯出按鈕，避免舊按鈕閃現
+    document.getElementById("exportArea").style.display = "none";
   
     // ✅ 如果有舊圖表，銷毀掉
     if (chartInstance) {
@@ -214,6 +294,7 @@ async function sendQuery(command) {
       document.getElementById("loading").style.display = "none";
     }
   } // ✅ sendQuery() 結束
+
 // 顯示結果表格與圖表
 function renderResult(command, json) {
   let html = "";
@@ -352,6 +433,9 @@ function renderResult(command, json) {
   // 表格排序
   const dataTable = document.getElementById("dataTable");
   if (dataTable) makeTableSortable(dataTable);
+  
+  // ✅ 查詢完成後顯示匯出按鈕
+  document.getElementById("exportArea").style.display = "block";
 }
 
 // 通用表格排序（支援數字/百分比/日期）
@@ -540,9 +624,368 @@ chartInstance = new Chart(ctx, {
     });
   }
 }
+
+    // ✅ 匯出 CSV 功能
+    document.getElementById("exportCsvBtn").addEventListener("click", async () => {
+    const queryDiv = document.getElementById("queryResult");
+    if (!queryDiv || queryDiv.innerHTML.trim() === "") {
+      alert("目前沒有查詢結果");
+      return;
+    }
+  
+    try {
+      const tables = queryDiv.querySelectorAll("table");
+      if (!tables.length) {
+        alert("沒有表格可以匯出");
+        return;
+      }
+  
+      let csvContent = "";
+
+      // 日期區間
+      const startDate = (document.getElementById("startDate")?.value || "unknown").replace(/-/g, "/");
+      const endDate = (document.getElementById("endDate")?.value || "unknown").replace(/-/g, "/");
+      const dateRange = `📅 日期區間：${startDate} ~ ${endDate}`;
+
+      let lastTitle = "報表";
+      
+      tables.forEach((table, idx) => {
+        // 🔹 抓取標題（h5）
+        let rawTitle = table.previousElementSibling && table.previousElementSibling.tagName === "H5"
+          ? table.previousElementSibling.textContent
+          : `工作表${idx + 1}`;
+        let titleText = rawTitle.split(";")[0].trim();
+
+        // 🔹 CSV 內容使用原始標題（保留 emoji）
+        let csvTitleText = titleText;
+  
+        // 🔹 移除 emoji、空白、"選擇" 等字
+        titleText = titleText
+          .replace(/^選擇/, "")
+          .replace(/查詢$/, "")
+          .replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, "")
+          .replace(/\s+/g, "")
+          .trim();
+  
+        lastTitle = titleText || lastTitle;
+
+      // 🔹 抓取總額資訊（若有 .total 元素）
+        const totalElement = table.nextElementSibling && table.nextElementSibling.classList.contains("total")
+          ? table.nextElementSibling.textContent.trim()
+          : "";
+  
+        // ✅ 匯出表頭資訊
+        csvContent += `"${dateRange}"\r\n`;
+        csvContent += `"${csvTitleText}"\r\n`; // ← 保留 emoji
+        if (totalElement) csvContent += `"${totalElement}"\r\n`;
+  
+        // ✅ 匯出表格資料
+        Array.from(table.rows).forEach(row => {
+          const rowData = Array.from(row.cells).map(cell => {
+            return `"${cell.textContent.trim().replace(/"/g, '""')}"`;
+          }).join(",");
+          csvContent += rowData + "\r\n";
+        });
+  
+        // 🔹 多表格間加空白行
+        if (idx < tables.length - 1) csvContent += "\r\n";
+      });
+  
+      // 檔名
+      const now = new Date();
+      const hh = String(now.getHours()).padStart(2, "0");
+      const mm = String(now.getMinutes()).padStart(2, "0");
+      const ss = String(now.getSeconds()).padStart(2, "0");
+      const startDateInput = document.getElementById("startDate")?.value || "unknown";
+      const filename = `非匯不可CSV_${lastTitle}_${startDateInput}-${hh}-${mm}-${ss}.csv`;
+  
+      // ✅ 判斷是否在 LINE 內建瀏覽器
+      if (liff.isInClient()) {
+        // 透過 LIFF 傳訊息給自己
+        await liff.sendMessages([{
+          type: "text",
+          text: `📄 CSV 檔案「${filename}」內容:\n\n${csvContent}`
+        }]);
+        alert("✅ CSV 已透過 LINE 傳送在聊天內，請在 LINE 查看");
+      } else {
+        // 一般瀏覽器下載
+        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+  
+    } catch (err) {
+      console.error("❌ 匯出 CSV 發生錯誤:", err);
+      alert("匯出 CSV 失敗：" + (err.message || "未定義錯誤"));
+    }
+  });
+  
+    // ✅ 匯出 Excel 功能
+    document.getElementById("exportExcelBtn").addEventListener("click", exportExcel);
+    
+    async function exportExcel() {
+      const queryDiv = document.getElementById("queryResult");
+      if (!queryDiv) return alert("目前沒有查詢結果");
+    
+      const tables = queryDiv.querySelectorAll("table");
+      if (tables.length === 0) return alert("沒有可匯出的表格");
+    
+      const wb = XLSX.utils.book_new();
+      let lastTitle = "報表";
+    
+      tables.forEach((table, idx) => {
+        const startDate = (document.getElementById("startDate").value || "unknown").replace(/-/g, "/");
+        const endDate = (document.getElementById("endDate").value || "unknown").replace(/-/g, "/");
+        const dateRange = `📅 日期區間：${startDate} ~ ${endDate}`;
+    
+        // 取得原始標題
+        let rawTitle = table.previousElementSibling && table.previousElementSibling.tagName === "H5"
+          ? table.previousElementSibling.textContent
+          : `工作表${idx + 1}`;
+        let titleElement = rawTitle.split(";")[0].trim();
+    
+        // ❶ Excel 內容保留符號
+        const titleForExcel = titleElement
+          .replace(/^選擇/, "")
+          .replace(/查詢$/, "")
+          .trim();
+    
+        // ❷ 檔名與工作表名稱移除符號與 emoji
+        const titleForFile = titleForExcel
+          .replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, "")
+          .replace(/\s+/g, "")
+          .trim() || `工作表${idx + 1}`;
+    
+        lastTitle = titleForFile || lastTitle;
+    
+        const totalElement = table.nextElementSibling && table.nextElementSibling.classList.contains("total")
+          ? table.nextElementSibling.textContent
+          : "";
+    
+        const wsData = [];
+        wsData.push([dateRange]);
+        wsData.push([titleForExcel]);  // 第二行保留符號
+        wsData.push([totalElement]);
+    
+        const headers = Array.from(table.querySelectorAll("th")).map(th => th.innerText.trim());
+        wsData.push(headers);
+    
+        const rows = Array.from(table.querySelectorAll("tr")).slice(1);
+        rows.forEach(row => {
+          const rowData = Array.from(row.querySelectorAll("td")).map(td => {
+            let text = td.innerText.trim();
+            if (/^\d{4}\/\d{1,2}\/\d{1,2}$/.test(text)) {
+              const [y, m, d] = text.split("/");
+              const mm = m.padStart(2, "0");
+              const dd = d.padStart(2, "0");
+              text = `${y}/${mm}/${dd}`;
+            }
+            return text;
+          });
+          wsData.push(rowData);
+        });
+    
+        const ws = XLSX.utils.aoa_to_sheet(wsData);
+        XLSX.utils.book_append_sheet(wb, ws, titleForFile.substring(0, 20));
+      });
+    
+      // 🔹 檔名
+      const now = new Date();
+      const hh = String(now.getHours()).padStart(2, "0");
+      const min = String(now.getMinutes()).padStart(2, "0");
+      const ss = String(now.getSeconds()).padStart(2, "0");
+    
+      const startDate = document.getElementById("startDate").value || "unknown";
+      const timestamp = `${startDate}-${hh}-${min}-${ss}`;
+      const filename = `非匯不可EXCEL_${lastTitle}_${timestamp}.xlsx`;
+    
+      try {
+        if (liff.isInClient()) {
+          // 🔹 LINE 內嵌瀏覽器：發送連結訊息
+          await liff.sendMessages([
+            {
+              type: "text",
+              text: `${htmlUrl}`
+            }
+          ]);
+          alert(`LINE 內建瀏覽器無法下載，網址已在訊息內，請自行將網址COPY貼在流覽器上使用此功能`)
+        } else {
+          // 🔹 一般瀏覽器：直接下載
+          XLSX.writeFile(wb, filename);
+        }
+      } catch (err) {
+        console.error("❌ 匯出 Excel 發生錯誤:", err);
+        alert("匯出 Excel 失敗：" + (err.message || "未定義錯誤"));
+      }
+    }
+  
+    // ✅ 匯出 PDF（包含表格 + 圖表 + 橫式A4 + 表格及圖表各自一頁 + 可自訂文字大小）
+    document.getElementById("exportPdfBtn").addEventListener("click", async () => {
+      const { jsPDF } = window.jspdf;
+      const queryDiv = document.getElementById("queryResult");
+      const chartCanvas = document.getElementById("chartCanvas");
+      const fontSize = 14; // 表格文字大小
+      const headerFontSize = 24; // 標題與日期區間字體大小
+    
+      if (!queryDiv || queryDiv.innerHTML.trim() === "") {
+        alert("目前沒有查詢結果");
+        return;
+      }
+    
+      try {
+        const pdf = new jsPDF({ orientation: "landscape", unit: "pt", format: "a4" });
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
+        const margin = 20;
+    
+        // === 取得日期區間 ===
+        const startDateInput = document.getElementById("startDate")?.value || "";
+        const endDateInput = document.getElementById("endDate")?.value || "";
+
+        // 用於 PDF 內文顯示（用 /）
+        const displayStartDate = startDateInput ? startDateInput.replaceAll("-", "/") : "";
+        const displayEndDate = endDateInput ? endDateInput.replaceAll("-", "/") : "";
+    
+        // 用於檔名（用 -）
+        const fileDate = startDateInput || "unknown";
+          
+        // === 取得表格標題 ===
+        const firstTable = queryDiv.querySelector("table");
+        let titleText = "報表";
+        if (firstTable) {
+          const titleEl =
+            firstTable.previousElementSibling && firstTable.previousElementSibling.tagName === "H5"
+              ? firstTable.previousElementSibling.textContent
+              : "";
+          if (titleEl) {
+            // 取分號前的字，例如「選擇查詢明細;標題按下即可排序」→「選擇查詢明細」
+            titleText = titleEl.split(";")[0].trim();
+          }
+        }
+    
+        // --- 1️⃣ 建立匯出容器 ---
+        const tableContainer = document.createElement("div");
+        tableContainer.style.position = "absolute";
+        tableContainer.style.left = "-9999px";
+        tableContainer.style.width = "1200px";
+        tableContainer.style.background = "#fff";
+        tableContainer.style.padding = "10px";
+    
+        // --- 2️⃣ 日期區間（第一行） ---
+        const dateDiv = document.createElement("div");
+        dateDiv.style.textAlign = "left";
+        dateDiv.style.fontSize = headerFontSize + "px";
+        dateDiv.style.fontWeight = "bold";
+        dateDiv.style.marginBottom = "5px";
+        dateDiv.textContent =
+          displayStartDate && displayEndDate
+            ? `📅 日期區間: ${displayStartDate} ~ ${displayEndDate}`
+            : "📅 日期區間: 未指定";
+    
+        // --- 3️⃣ 標題（第二行） ---
+        const titleDiv = document.createElement("div");
+        titleDiv.style.textAlign = "left";
+        titleDiv.style.fontSize = headerFontSize + "px";
+        titleDiv.style.fontWeight = "bold";
+        titleDiv.style.marginBottom = "10px";
+        titleDiv.textContent = titleText;
+    
+        // --- 插入順序：日期區間 → 標題 → 表格 ---
+        tableContainer.appendChild(dateDiv);
+        tableContainer.appendChild(titleDiv);
+    
+        // 克隆 queryDiv，但移除 H5（避免「第三行」重複出現）
+        const clonedQuery = queryDiv.cloneNode(true);
+        clonedQuery.querySelectorAll("h5").forEach(el => el.remove());
+        tableContainer.appendChild(clonedQuery);
+    
+        // 設定表格內文字大小
+        tableContainer.querySelectorAll("table, th, td").forEach(el => {
+          el.style.fontSize = fontSize + "px";
+        });
+    
+        document.body.appendChild(tableContainer);
+        await new Promise(r => setTimeout(r, 300));
+    
+        // --- 4️⃣ 轉成 Canvas ---
+        const tableCanvas = await html2canvas(tableContainer, {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: "#fff"
+        });
+        document.body.removeChild(tableContainer);
+    
+        // --- 5️⃣ 縮放成單頁 ---
+        const maxWidth = pageWidth - margin * 2;
+        const maxHeight = pageHeight - margin * 2;
+        let imgWidth = tableCanvas.width;
+        let imgHeight = tableCanvas.height;
+        const ratio = Math.min(maxWidth / imgWidth, maxHeight / imgHeight);
+        imgWidth *= ratio;
+        imgHeight *= ratio;
+    
+        pdf.addImage(tableCanvas, "PNG", margin, margin, imgWidth, imgHeight);
+    
+        // --- 6️⃣ 圖表（可選） ---
+        if (chartCanvas && chartCanvas.width > 0) {
+          pdf.addPage();
+          const chartImg = chartCanvas.toDataURL("image/png");
+          const chartRatio = Math.min(
+            (pageWidth - margin * 2) / chartCanvas.width,
+            (pageHeight - margin * 2) / chartCanvas.height
+          );
+          pdf.addImage(
+            chartImg,
+            "PNG",
+            margin,
+            margin,
+            chartCanvas.width * chartRatio,
+            chartCanvas.height * chartRatio
+          );
+        }
+
+        // 🔹 清理掉多餘字眼與 emoji（只留下主題關鍵詞）
+        titleText = titleText
+          .replace(/^選擇/, "")            // 移除開頭「選擇」
+          .replace(/查詢$/, "")            // 移除結尾「查詢」
+          .replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, "") // 移除所有 emoji
+          .replace(/\s+/g, "")             // 移除多餘空白
+          .trim();
+        
+        // --- 7️⃣ 檔名 ---
+        const now = new Date();
+        const hh = String(now.getHours()).padStart(2, "0");
+        const mm = String(now.getMinutes()).padStart(2, "0");
+        const ss = String(now.getSeconds()).padStart(2, "0");
+        const filename = `非匯不可PDF_${titleText || "報表"}_${fileDate}-${hh}-${mm}-${ss}.pdf`;
+    
+        if (liff.isInClient()) {
+          // LINE 內建瀏覽器：透過 LIFF 傳訊息給自己，訊息中帶 URL
+          await liff.sendMessages([{
+            type: "text",
+            text: `${htmlUrl}`
+          }]);
+          // LINE 內建瀏覽器：只提示訊息          
+          alert(`LINE 內建瀏覽器無法下載，網址已在訊息內，請自行將網址COPY貼在流覽器上使用此功能`);                 
+        } else {
+          // Web：正常下載
+          pdf.save(filename);
+        }
+    
+      } catch (err) {
+        console.error("❌ 匯出 PDF 發生錯誤:", err);
+        alert("匯出 PDF 失敗：" + (err.message || "未定義錯誤"));
+      }
+    });
+  
 // ✅ 呼叫初始化
 initApp();
 </script>
 </body>
 </html>
-
