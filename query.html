@@ -430,52 +430,107 @@ function renderResult(command, json) {
 
   document.getElementById("queryResult").innerHTML = html;
 
-  // 表格排序
-  const dataTable = document.getElementById("dataTable");
-  if (dataTable) makeTableSortable(dataTable);
+  // ✅ 若是明細.分類查詢，依清單順序排序付款與分類
+  if (command === "明細" || command === "分類") {
+    fetch(API_URL + "?type=query&command=清單")
+      .then(r => r.json())
+      .then(res => {
+        const list = res.list || {};
+        const paymentOrder = (list.payment || []).map(p => p.name);
+        const typeOrder = (list.type || []).map(t => t.name);
+  
+        const dataTable = document.getElementById("dataTable");
+        if (dataTable) {
+          makeTableSortable(dataTable, { paymentOrder, typeOrder });
+        }
+      })
+      .catch(err => console.error("清單排序載入失敗:", err));
+  } else {
+    const dataTable = document.getElementById("dataTable");
+    if (dataTable) makeTableSortable(dataTable);
+  }
   
   // ✅ 查詢完成後顯示匯出按鈕
   document.getElementById("exportArea").style.display = "block";
 }
 
-// 通用表格排序（支援數字/百分比/日期）
-function makeTableSortable(table) {
+// ✅ 通用表格排序（支援外部順序、數字、百分比、日期）
+function makeTableSortable(table, orderMaps = {}) {
   const headers = table.querySelectorAll("th");
-  headers.forEach((th, colIndex)=>{
+
+  // 🔹 自動找出欄位索引（避免硬編 colIndex）
+  let paymentCol = -1, typeCol = -1, dateCol = -1;
+  headers.forEach((th, i) => {
+    const text = th.innerText.trim();
+    if (text.includes("付款")) paymentCol = i;
+    if (text.includes("分類")) typeCol = i;
+    if (text.includes("日期")) dateCol = i;
+  });
+
+  headers.forEach((th, colIndex) => {
     th.style.cursor = "pointer";
-    th.addEventListener("click", ()=>{
+    th.addEventListener("click", () => {
       const rows = Array.from(table.querySelectorAll("tr")).slice(1);
       const currentOrder = th.dataset.order || null;
       const newOrder = currentOrder === "asc" ? "desc" : "asc";
       th.dataset.order = newOrder;
-      // reset 標記
-      headers.forEach(h=>{
-        h.classList.remove("sort-asc","sort-desc");
-        h.innerHTML = h.innerHTML.replace(/[\u25B2\u25BC]/g,"");
-      });
-      th.classList.add(newOrder==="asc"?"sort-asc":"sort-desc");
-      th.innerHTML += newOrder==="asc"?" ▲":" ▼";
 
-      rows.sort((a,b)=>{
-        let aVal = parseCellValue(a.cells[colIndex].innerText, colIndex);
-        let bVal = parseCellValue(b.cells[colIndex].innerText, colIndex);
-        if (newOrder==="asc") return aVal>bVal?1:-1;
-        else return aVal<bVal?1:-1;
+      // reset 標記
+      headers.forEach(h => {
+        h.classList.remove("sort-asc", "sort-desc");
+        h.innerHTML = h.innerHTML.replace(/[\u25B2\u25BC]/g, "");
       });
-      rows.forEach(r=>table.appendChild(r));
+      th.classList.add(newOrder === "asc" ? "sort-asc" : "sort-desc");
+      th.innerHTML += newOrder === "asc" ? " ▲" : " ▼";
+
+      // 排序邏輯
+      rows.sort((a, b) => {
+        const aVal = parseCellValue(a.cells[colIndex]?.innerText || "", colIndex, {
+          paymentCol,
+          typeCol,
+          dateCol,
+          ...orderMaps
+        });
+        const bVal = parseCellValue(b.cells[colIndex]?.innerText || "", colIndex, {
+          paymentCol,
+          typeCol,
+          dateCol,
+          ...orderMaps
+        });
+
+        if (aVal === bVal) return 0;
+        if (newOrder === "asc") return aVal > bVal ? 1 : -1;
+        else return aVal < bVal ? 1 : -1;
+      });
+      rows.forEach(r => table.appendChild(r));
     });
   });
 }
 
-// 將欄位文字轉為可比較值
-function parseCellValue(txt, colIndex) {
-  // ✅ 如果是日期欄（第 2 欄，index=1），轉 Date
-  if (colIndex === 1) {
-    const d = new Date(txt.replace(/\//g, "-")); // "2025/9/2" → Date
+// ✅ 將欄位文字轉為可比較值（含付款 / 分類的順序表）
+function parseCellValue(txt, colIndex, map) {
+  txt = txt.trim();
+
+  // 🔹 日期欄位
+  if (colIndex === map.dateCol) {
+    const d = new Date(txt.replace(/\//g, "-"));
     return d.getTime() || 0;
   }
-  // 其他照舊：數字/百分比
-  let v = txt.replace(/,/g, "").replace("%", "");
+
+  // 🔹 付款欄位（依清單順序）
+  if (colIndex === map.paymentCol && map.paymentOrder?.length) {
+    const idx = map.paymentOrder.indexOf(txt);
+    return idx !== -1 ? idx : 999;
+  }
+
+  // 🔹 分類欄位（依清單順序）
+  if (colIndex === map.typeCol && map.typeOrder?.length) {
+    const idx = map.typeOrder.indexOf(txt);
+    return idx !== -1 ? idx : 999;
+  }
+
+  // 🔹 其他欄位：若為數字/百分比則轉數值
+  const v = txt.replace(/,/g, "").replace("%", "");
   return isNaN(v) ? txt : parseFloat(v);
 }
 
