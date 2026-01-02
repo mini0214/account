@@ -56,6 +56,43 @@
       <input type="number" id="income" placeholder="請輸入收入金額" style="width:550px; color:blue; display:none;" step="0.01">
       <input type="number" id="payout" placeholder="請輸入支出金額" style="width:550px; color:red; display:inline-block;" step="0.01">
     </div>   
+
+    <div class="form-row">
+      <label for="currency">幣別：</label>
+      <select id="currency" required>
+        <option value="">請選擇幣別</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <label for="payment">付款：</label>
+      <select id="payment" required>
+        <option value="">請選擇付款</option>
+      </select>
+    </div>
+
+    <div class="form-block">
+      <label for="type">分類：</label>
+      <select id="type" required>
+        <option value="">請選擇分類</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <label for="store">附註：</label>
+      <input type="text" id="note" placeholder="選填">
+    </div>
+
+    <div class="form-row">
+      <label for="store">備註：</label>
+      <input type="text" id="memo" placeholder="選填">
+    </div>
+
+    <button type="submit" id="submitBtn">送出</button>
+    <div id="loadingMsg" style="display:none; font-size:40px; color:red; text-align:center; margin-top:20px;">
+      ⏳ 資料送出中，請稍候...
+    </div>
+  </form>
     
     <script>      
       const btnIncome = document.getElementById("btnIncome");
@@ -87,58 +124,7 @@
         income.style.display = "none";
         income.value = "";
       });
-
-      // ✅ 監聽支出欄位輸入
-      payout.addEventListener("input", () => {
-        const val = payout.value;
-        if (val.includes(".")) {
-          currency.value = "20";  // 有小數點 → 澳幣
-        } else if (val !== "") {
-          currency.value = "1";   // 無小數點 → 台幣
-        } else {
-          currency.value = "";    // 若清空輸入 → 清空幣別
-        }
-      });
-    </script>      
-
-    <div class="form-block">
-      <label for="currency">幣別：</label>
-      <select id="currency" required>
-        <option value="">請選擇幣別</option>
-        <option value="1">台幣:1</option>
-        <option value="20">澳幣:20</option>
-      </select>
-    </div>
-  
-    <div class="form-row">
-      <label for="payment">付款：</label>
-      <select id="payment" required>
-        <option value="">請選擇付款</option>
-      </select>
-    </div>
-
-    <div class="form-block">
-      <label for="type">分類：</label>
-      <select id="type" required>
-        <option value="">請選擇分類</option>
-      </select>
-    </div>
-
-    <div class="form-row">
-      <label for="store">附註：</label>
-      <input type="text" id="note" placeholder="選填">
-    </div>
-
-    <div class="form-row">
-      <label for="store">備註：</label>
-      <input type="text" id="memo" placeholder="選填">
-    </div>
-
-    <button type="submit" id="submitBtn">送出</button>
-    <div id="loadingMsg" style="display:none; font-size:40px; color:red; text-align:center; margin-top:20px;">
-      ⏳ 資料送出中，請稍候...
-    </div>
-  </form>
+    </script>
 
   <!-- LIFF 初始化 + 登錄送出 -->
   <script>  
@@ -156,7 +142,7 @@
     // FALLBACK_GAS_SETTINGS_URL 是「啟動保底設定URL」。第一次啟動時用它讀取設定表。所以未來重新部署 GAS，不需修改此行，除非設定表失效。
     // 若設定表內有 D5（SETTINGS_URL），會自動更新成 D5。
     // 暫時用,後續會自動轉換成設定檔內的固定 D5。這行只是啟動用的臨時鑰匙，真的開門後會自動換成設定表的正式鑰匙。
-    let FALLBACK_GAS_SETTINGS_URL = "https://script.google.com/macros/s/AKfycbwjK8tbxy6xHOIcYsZ0eCBzfFByNrLCXtSsKN2TcsvDZfWygJ_2Q38MHi-Wc1mG3s_S/exec";
+    let FALLBACK_GAS_SETTINGS_URL = "https://script.google.com/macros/s/AKfycby1SMoG2P9fXnir-9aaGe_4WTvNL7u1QqorBMpWnxFO760AtriIKzhawj3wKiKj5ZE_UQ/exec";
      
     let API_URL = "";    // ✅ 從設定檔 D6
     let VERSION = "V";   // ✅ 從設定檔 D10
@@ -208,7 +194,7 @@
         document.getElementById("date").valueAsDate = new Date();
     
         if (API_URL) {
-          await loadListData();   // 先載入付款 / 分類清單
+          await loadListData();   // 先載入幣別 / 付款 / 分類清單
           await loadStoreList();  // 再載入店家清單
         }
     
@@ -218,7 +204,7 @@
       }
     }
 
-    //清單(type/payment)
+    //清單(currency/type/payment)
     async function loadListData() {
       try {
         const res = await fetch(`${API_URL}?type=query&command=清單`);
@@ -228,14 +214,54 @@
         if (!data.ok || !data.list) throw new Error("清單資料格式錯誤");
         
         const list = data.list;
+        const currencySelect = document.getElementById("currency");
         const typeSelect = document.getElementById("type");
         const paymentSelect = document.getElementById("payment");
-    
-        // ✅ 先清空原本選項
-        typeSelect.innerHTML = '<option value="">請選擇分類</option>';
-        paymentSelect.innerHTML = '<option value="">請選擇付款</option>';
-    
+        const incomeInput = document.getElementById("income");
+        const payoutInput = document.getElementById("payout");
+
+        // 🔹 加 allowDecimal 屬性，根據 exchange 判斷
+        list.currency.forEach(c => {
+          c.allowDecimal = c.exchange.toString().includes('.');
+        });        
+        
+        // ✅ 動態加入幣別(currency)
+        function renderCurrencyOptions(hasDecimal = false) {
+          const selectedName = currencySelect.selectedOptions[0]?.dataset.name || "";    // ✅ 記住原本選擇
+          currencySelect.innerHTML = '<option value="">請選擇幣別</option>';              // ✅ 先清空原本選項
+          list.currency.forEach(c => {
+            if (hasDecimal && !c.allowDecimal) return;    // 小數點時只顯示允許小數的幣別
+            const opt = document.createElement("option");
+            opt.value = c.exchange;                       // 🔑 value 存「換算值」
+            opt.textContent = `${c.name}:${c.exchange}`;  // 🔑 顯示「幣別:匯率」澳幣:20
+            opt.dataset.name = c.name;                    // 🔑 幣別名稱額外帶著
+            currencySelect.appendChild(opt);
+          });
+
+          // 🔹 如果原本選的幣別還在新的選項裡，保留選中
+          if (selectedName) {
+            const matched = [...currencySelect.options].find(opt => opt.dataset.name === selectedName);
+            if (matched) currencySelect.value = matched.value;
+          }
+        }
+
+        // 初始顯示全部幣別
+        renderCurrencyOptions(false);
+
+        // 🔹 收入欄位輸入時動態篩選
+        incomeInput.addEventListener("input", () => {
+          const hasDecimal = incomeInput.value.includes(".");
+          renderCurrencyOptions(hasDecimal);
+        });
+
+        // 🔹 支出欄位輸入時動態篩選
+        payoutInput.addEventListener("input", () => {
+          const hasDecimal = payoutInput.value.includes(".");
+          renderCurrencyOptions(hasDecimal);
+        });
+        
         // ✅ 動態加入分類(type)
+        typeSelect.innerHTML = '<option value="">請選擇分類</option>';  // ✅ 先清空原本選項
         list.type.forEach(t => {
           const opt = document.createElement("option");
           opt.value = t.name;
@@ -244,6 +270,7 @@
         });
     
         // ✅ 動態加入付款(payment)
+        paymentSelect.innerHTML = '<option value="">請選擇付款</option>';  // ✅ 先清空原本選項
         list.payment.forEach(p => {
           const opt = document.createElement("option");
           opt.value = p.name;
@@ -251,7 +278,7 @@
           paymentSelect.appendChild(opt);
         });
         
-        // ✅ 加上這行 (關鍵)
+        // ✅ 保存全域清單
         window.otherList = list;  
     
         console.log("✅ 清單載入完成");    
@@ -369,7 +396,11 @@
       const income = document.getElementById("income").value;
       const payout = document.getElementById("payout").value;
       const payment = document.getElementById("payment").value;
-      const currency = document.getElementById("currency").value;
+      //幣別轉換填入相關值
+      const currencySelect = document.getElementById("currency");
+      const currency = Number(currencySelect.value);                         // 20
+      const exchange = currencySelect.selectedOptions[0]?.dataset.name || "";// 澳幣
+      
       const type = document.getElementById("type").value;
       const note = document.getElementById("note").value;
       const memo = document.getElementById("memo").value;
@@ -397,7 +428,7 @@
         note: note,
         memo: memo,
         createdAt: taiwanTime,
-        exchange: taiwanTime
+        exchange: exchange
       };
 
       const apiUrl = API_URL; 
@@ -444,7 +475,7 @@
                     `📆 日期：${payload.inputDate}\n` +
                     `📋 店家：${payload.store || " "}\n` +
                     `💰 收支：${payload.payout ? `-${payload.payout}` : payload.income}\n` +
-                    `💰 幣別：${payload.currency}\n` +
+                    `💰 幣別：${payload.exchange}  ${payload.currency}\n` +
                     `💰 金額：${payload.amount}\n` +
                     `💳 付款：${payload.payment}\n` +
                     `📂 分類：${payload.type}\n` +
@@ -504,7 +535,7 @@
                   `📆 日期：${payload.inputDate}\n` +
                   `📋 店家：${payload.store || " "}\n` +
                   `💰 收支：${payload.payout ? `-${payload.payout}` : payload.income}\n` +
-                  `💰 幣別：${payload.currency}\n` +
+                  `💰 幣別：${payload.exchange}  ${payload.currency}\n` +
                   `💰 金額：${payload.amount}\n` +
                   `💳 付款：${payload.payment}\n` +
                   `📂 分類：${payload.type}\n` +
@@ -536,4 +567,3 @@
   </script>
 </body>
 </html>
-
