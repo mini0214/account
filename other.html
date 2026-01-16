@@ -60,7 +60,7 @@
     <div id="summary" class="total"></div>
     
 <script>
-let FALLBACK_GAS_SETTINGS_URL = "https://script.google.com/macros/s/AKfycbz4CDPD05lzHRnEh9izxFgWz7GNwgxF5fjz4McTq9cG17kMcr2VhHq8YooGqeTslWER/exec";
+let FALLBACK_GAS_SETTINGS_URL = "https://script.google.com/macros/s/AKfycbxH9-Iky6VGgCKL9mD6KtCTw5kmfYYBW45aeE7E5UNIWMUHiIaKDaNK0GN4ypO_UVVc/exec";
 let API_URL = "";
 let VERSION = "V";
 let LIFF_IDo = "";
@@ -172,8 +172,8 @@ async function saveOther() {
 
     if (result.ok) {
       alert(editIndex === -1 
-        ? `✅ 已新增資料：${payload.name}` 
-        : `✅ 已修改資料：${payload.name}`);
+        ? `✅ 已新增 ${payload.name} 此筆資料` 
+        : `✅ 已修改 ${payload.name} 此筆資料`);
       clearForm();
       loadOther();
     } else {
@@ -271,11 +271,17 @@ function editOther(idx) {
 // 4️⃣ 刪除（加上currency/type/payment綁定檢查）
 // ----------------------------------------------------
 async function deleteOther(idx) {
-  if (!confirm("❗確定要刪除這筆資料嗎？")) return;
-  
+  // 1️⃣ 先定義 row（從快取取得資料）
   const row = window.otherDataCache[idx];
-  if (!row) return;
+  if (!row) {
+    alert("❌ 找不到該筆資料的快取");
+    return;
+  }
 
+  // 2️⃣ 現在 row 已經存在，可以正確帶入 ${row.name}
+  if (!confirm(`❗確定要刪除 ${row.name} 這筆資料嗎？`)) return;
+  
+  // 3️⃣ 後續邏輯：執行綁定檢查與刪除
   try {
     // 🔹 同時查詢「匯率(currency)」.「分類(type)」.「付款(payment)」清單
     const [exchangeRes, typeRes, paymentRes] = await Promise.all([
@@ -311,11 +317,11 @@ async function deleteOther(idx) {
 
     const resDel = await res.json();
     if (resDel.ok) {
-      alert(`✅ 已刪除資料：${row.name}`);
+      alert(`✅ ${row.name} 刪除成功！`);
       clearForm();
       loadOther();
     } else {
-      alert(`❌ 刪除失敗：${resDel.msg || "未知錯誤"} (${row.name})`);
+      alert(`❌ ${row.name} 刪除失敗：${resDel.msg || "未知錯誤"} `);
     }
 
   } catch (err) {
@@ -340,7 +346,3 @@ initApp(); // 🚀 啟動應用
 </script>
 </body>
 </html>
-
-
-
-
