@@ -99,12 +99,16 @@
       <input type="number" id="editAmount">
     </div>
     <div class="form-group">
-      <label>分類</label>
-      <select id="editType"></select>
+      <label>幣別</label>
+      <select id="editCurr"></select>
     </div>
     <div class="form-group">
       <label>付款方式</label>
       <select id="editPay"></select>
+    </div>
+    <div class="form-group">
+      <label>分類</label>
+      <select id="editType"></select>
     </div>
     <div class="form-group">
       <label>附註</label>
@@ -113,10 +117,6 @@
     <div class="form-group">
       <label>備註</label>
       <input type="text" id="editMemo">
-    </div>
-    <div class="form-group">
-      <label>幣別</label>
-      <select id="editCurr"></select>
     </div>
 
     <div class="modal-footer">
@@ -146,7 +146,7 @@
   <button id="queryMonthStoreBtn">🏠 店家</button>
 </div>
 
-<div id="loading" style="display:none;">⏳ 正在載入中,請稍侯...</div>
+<div id="loading" style="display:none; font-size:40px; color:red; text-align:center; margin-top:20px;">⏳ 正在載入中，請稍侯...</div>
 <div id="queryResult"></div>
 <div id="drillDownArea"></div>
 <div class="chart-container"><canvas id="chartCanvas"></canvas></div>
@@ -162,7 +162,7 @@
 <script>
 const LIFF_IDq = "2007975722-zEq1ONrg";
 const API_URL = "https://script.google.com/macros/s/AKfycbx3HKUITjNkgev1JrJtE3rMW_qxeXLYyKHQgtrh5hiCwBwYOU9QGPdK7a8H6bUJvEUC/exec";
-const VERSION = "V29_#260127"; 
+const VERSION = "V29_#260128"; 
 
 let currentUser = null; 
 let chartInstance = null; 
@@ -253,7 +253,7 @@ function startLoading() {
   
   // 顯示 Loading 並初始化文字
   loadingDiv.style.display = 'block';
-  loadingDiv.innerText = `⏳ 正在載入中,請稍侯...${seconds}s`;
+  loadingDiv.innerText = `⏳ 正在載入中，請稍侯...${seconds}s`;
   
   // 清空畫面上舊的資料與圖表（避免混淆）
   document.getElementById('queryResult').innerHTML = '';
@@ -263,7 +263,7 @@ function startLoading() {
   // 每秒更新
   timerInterval = setInterval(() => {
     seconds++;
-    loadingDiv.innerText = `⏳ 正在載入中,請稍侯...${seconds}s`;
+    loadingDiv.innerText = `⏳ 正在載入中，請稍侯...${seconds}s`;
   }, 1000);
 }
 
@@ -393,13 +393,13 @@ function renderResult(command, json) {
 
     if (displayRows.length > 0) {
       if (mainChartContainer) mainChartContainer.style.display = "block";
-      mainHtml += `<h5>${currentFullLabel}查詢;標題按下即可排序</h5><table id="mainTable"><thead><tr><th>記帳者</th><th>日期</th><th>店家</th><th>收入</th><th>支出</th><th>匯率</th><th>金額</th><th>付款</th><th>分類</th><th>附註</th><th>備註</th><th>幣別</th><th>ID</th><th>功能</th></tr></thead><tbody>`;
+      mainHtml += `<h5>${currentFullLabel}查詢;標題按下即可排序</h5><table id="mainTable"><thead><tr><th>記帳者</th><th>日期</th><th>店家</th><th>收入</th><th>支出</th><th>匯率</th><th>金額</th><th>幣別</th><th>付款</th><th>分類</th><th>附註</th><th>備註</th><th>ID</th><th>功能</th></tr></thead><tbody>`;
       
       displayRows.forEach((r) => { 
         const rowId = r[15] || '';
         const dataInfo = {
           user: r[3]||'', date: r[4], store: r[8]||'',
-          amount: r[5]||0, pay: r[7]||'', type: r[6]||'', note: r[9]||'', memo: r[10] || '', curr: r[14]||''
+          amount: r[5]||0, curr: r[14]||'', pay: r[7]||'', type: r[6]||'', note: r[9]||'', memo: r[10] || ''
         };
         const dataStr = JSON.stringify(dataInfo).replace(/"/g, '&quot;');
 
@@ -411,11 +411,11 @@ function renderResult(command, json) {
           <td class="numeric">${(Number(r[12])||0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
           <td>${r[13]||1}</td>
           <td class="numeric">${(Number(r[5])||0).toLocaleString()}</td>
+          <td>${r[14]||''}</td>
           <td>${r[7]||''}</td>
           <td>${r[6]||''}</td>
           <td>${r[9]||''}</td>
           <td>${r[10]||''}</td>
-          <td>${r[14]||''}</td>
           <td>${rowId}</td>
           <td>
             <button class="btn-edit" onclick='editRow("${rowId}")'>📝 修改</button>
@@ -530,11 +530,11 @@ function editRow(id) {
   document.getElementById("editDate").value = toInputDate(d);
   document.getElementById("editStore").value = row[8] || "";
   document.getElementById("editAmount").value = row[5] || 0;
-  document.getElementById("editType").value = row[6] || "";
+  document.getElementById("editCurr").value = row[14] || "";
   document.getElementById("editPay").value = row[7] || "";
+  document.getElementById("editType").value = row[6] || "";
   document.getElementById("editNote").value = row[9] || "";
   document.getElementById("editMemo").value = row[10] || "";
-  document.getElementById("editCurr").value = row[14] || "";
 
   document.getElementById("editModal").style.display = "block";
 }
@@ -559,11 +559,11 @@ async function confirmUpdate() {
   updatedRow[4]  = document.getElementById("editDate").value;
   updatedRow[8]  = document.getElementById("editStore").value;
   updatedRow[5]  = Number(document.getElementById("editAmount").value); // 轉為數字
-  updatedRow[6]  = document.getElementById("editType").value;
+  updatedRow[14] = document.getElementById("editCurr").value;
   updatedRow[7]  = document.getElementById("editPay").value;
+  updatedRow[6]  = document.getElementById("editType").value;
   updatedRow[9]  = document.getElementById("editNote").value;
   updatedRow[10] = document.getElementById("editMemo").value;
-  updatedRow[14] = document.getElementById("editCurr").value;
   // 收入/支出通常由公式或後端計算，若需前端更新請在此指定 updatedRow[11] 或 [12]
 
   const body = {
@@ -608,14 +608,14 @@ function showDrillDown(command, itemValue) {
   let subTotal = filteredRows.reduce((sum, r) => sum + Number(r[5] || 0), 0);
   let subCount = filteredRows.length;
   let drillHtml = `<h5>📇 ${command}明細：<span style="color: blue; font-weight: bold;">${itemValue}</span> 📍 金額：${subTotal.toLocaleString()} 元 📝 筆數：${subCount.toLocaleString()} 筆</h5>`;
-  drillHtml += `<table id="drillTable"><thead><tr><th>記帳者</th><th>日期</th><th>店家</th><th>收入</th><th>支出</th><th>匯率</th><th>金額</th><th>付款</th><th>分類</th><th>附註</th><th>備註</th><th>幣別</th><th>ID</th><th>功能</th></tr></thead><tbody>`;
+  drillHtml += `<table id="drillTable"><thead><tr><th>記帳者</th><th>日期</th><th>店家</th><th>收入</th><th>支出</th><th>匯率</th><th>金額</th><th>幣別</th><th>付款</th><th>分類</th><th>附註</th><th>備註</th><th>ID</th><th>功能</th></tr></thead><tbody>`;
   
   filteredRows.forEach((r) => {
     // 1. 取得 ID 與封裝資料 (供修改/刪除使用)
     const rowId = r[15] || '';
     const dataInfo = {
       user: r[3]||'', date: r[4], store: r[8]||'',
-      amount: r[5]||0, pay: r[7]||'', type: r[6]||'', note: r[9]||'', memo: r[10]||'', curr: r[14]||''
+      amount: r[5]||0, curr: r[14]||'', pay: r[7]||'', type: r[6]||'', note: r[9]||'', memo: r[10]||''
     };
     const dataStr = JSON.stringify(dataInfo).replace(/"/g, '&quot;');
 
@@ -635,11 +635,11 @@ function showDrillDown(command, itemValue) {
       <td class="numeric">${(Number(r[12])||0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
       <td>${r[13]||1}</td>
       <td class="numeric">${(Number(r[5])||0).toLocaleString()}</td>
+      <td style="${isCurr ? 'color: blue; font-weight: bold;' : ''}">${r[14]||''}</td>
       <td style="${isPay ? 'color: blue; font-weight: bold;' : ''}">${r[7]||''}</td>
       <td style="${isType ? 'color: blue; font-weight: bold;' : ''}">${r[6]||''}</td>
       <td>${r[9]||''}</td>
       <td>${r[10]||''}</td>
-      <td style="${isCurr ? 'color: blue; font-weight: bold;' : ''}">${r[14]||''}</td>
       <td>${rowId}</td>
       <td>
         <button class="btn-edit" onclick='editRow("${rowId}")'>📝 修改</button>
@@ -832,3 +832,9 @@ document.getElementById("exportPdfBtn").onclick = async () => {
 </script>
 </body>
 </html>
+
+
+
+
+
+
